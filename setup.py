@@ -20,11 +20,11 @@ def _read(fname):
         return f.read()
 
 setup(
-    name='nti.base',
+    name='nti.xapi',
     version=_read('version.txt').strip(),
-    author='Jason Madden',
-    author_email='jason@nextthought.com',
-    description="NTI Base",
+    author='Chris Utz',
+    author_email='chris@nextthought.com',
+    description="NTI xAPI",
     long_description=_read('README.rst'),
     license='Apache',
     keywords='Property',

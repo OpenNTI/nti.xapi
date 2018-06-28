@@ -1,11 +1,5 @@
-==========
- nti.base
-==========
+=========
+ nti.xapi
+=========
 
-.. image:: https://travis-ci.org/NextThought/nti.base.svg?branch=master
-    :target: https://travis-ci.org/NextThought/nti.base
-
-.. image:: https://coveralls.io/repos/github/NextThought/nti.base/badge.svg?branch=master
-    :target: https://coveralls.io/github/NextThought/nti.base?branch=master
-
-For complete details and the changelog, see the `documentation <http://ntibase.readthedocs.io/>`_.
+A zope.schema/zope.interface compatible port of https://github.com/RusticiSoftware/TinCanPython/
