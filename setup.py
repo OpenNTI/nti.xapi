@@ -9,10 +9,8 @@ entry_points = {
 
 TESTS_REQUIRE = [
     'fudge',
-    'nose2[coverage_plugin]',
     'nti.testing',
-    'pyhamcrest',
-    'z3c.baseregistry',
+    'zope.dottedname',
     'zope.testrunner',
 ]
 
@@ -28,7 +26,11 @@ setup(
     author='Chris Utz',
     author_email='chris@nextthought.com',
     description="NTI xAPI",
-    long_description=_read('README.rst'),
+    long_description=(
+        _read('README.rst')
+        + '\n\n'
+        + _read("CHANGES.rst")
+    ),
     license='Apache',
     keywords='xAPI',
     classifiers=[
@@ -58,6 +60,11 @@ setup(
     ],
     extras_require={
         'test': TESTS_REQUIRE,
+        'docs': [
+            'Sphinx',
+            'repoze.sphinx.autointerface',
+            'sphinx_rtd_theme',
+        ],
     },
     entry_points=entry_points,
 )
