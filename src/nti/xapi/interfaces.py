@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
-logger = __import__('logging').getLogger(__name__)
+# pylint: disable=inherit-non-class
 
 from zope import interface
 
@@ -13,15 +17,15 @@ from zope.interface import Attribute
 from zope.interface.common.mapping import IMapping
 
 from nti.schema.field import Bool
-from nti.schema.field import ListOrTuple
-from nti.schema.field import Dict
-from nti.schema.field import Float
+from nti.schema.field import Number
 from nti.schema.field import Object
-from nti.schema.field import Timedelta
-from nti.schema.field import ValidDatetime
-from nti.schema.field import ValidTextLine
-from nti.schema.field import ValidURI
 from nti.schema.field import Variant
+from nti.schema.field import ValidURI
+from nti.schema.field import Timedelta
+from nti.schema.field import ListOrTuple
+from nti.schema.field import ValidDatetime
+from nti.schema.field import DecodingValidTextLine as ValidTextLine
+
 
 class Version(object):
     """
@@ -35,10 +39,12 @@ class Version(object):
     ]
     latest = supported[0]
 
+
 class IXAPIBase(interface.Interface):
     """
     A base interface for other xAPI defined interfaces
     """
+
 
 class IExtensions(IMapping, IXAPIBase):
     """
@@ -62,6 +68,7 @@ class ILanguageMap(IMapping, IXAPIBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#42-language-maps
     """
 
+
 class IAbout(IXAPIBase):
     """
     Information about an LRS
@@ -77,7 +84,7 @@ class IAbout(IXAPIBase):
                         description=u'Extensions supported by this LRS',
                         required=False)
 
-    
+
 class IAgentAccount(IXAPIBase):
     """
     A user account on an existing system, such as a private system (LMS or intranet) or a public system (social networking site).
@@ -93,7 +100,7 @@ class IAgentAccount(IXAPIBase):
                         description=u'The canonical home page for the system the account is on. This is based on FOAFs accountServiceHomePage.',
                         required=True)
 
-    
+
 class IIFIEntity(interface.Interface):
     """
     An Entity identified by an Inverse Functional Identifier (IFI) is a value of an Agent or Identified Group 
@@ -137,9 +144,10 @@ class IAgent(INamedEntity, IIFIEntity):
 class IGroup(INamedEntity):
     """
     A Group represents a collection of Agents
-    
+
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#description-3
     """
+
 
 class IAnonymousGroup(IGroup):
     """
@@ -153,7 +161,7 @@ class IAnonymousGroup(IGroup):
                           default=[],
                           required=True)
 
-    
+
 class IIdentifiedGroup(IGroup, IIFIEntity):
     """
     An Identified Group is used to uniquely identify a cluster of Agents.
@@ -163,6 +171,7 @@ class IIdentifiedGroup(IGroup, IIFIEntity):
     members = ListOrTuple(title=u'The members of this Group.',
                           value_type=Object(IAgent),
                           required=False)
+
 
 class IVerb(IXAPIBase):
     """
@@ -178,6 +187,7 @@ class IVerb(IXAPIBase):
                      title=u'The human readable representation of the Verb in one or more languages.',
                      required=False)
 
+
 class IActivityInteraction(IXAPIBase):
     """
     Traditional e-learning has included structures for interactions or assessments. 
@@ -191,8 +201,9 @@ class IActivityInteraction(IXAPIBase):
     The structure of this pattern varies depending on the interactionType.',
                                           required=False)
 
-#TODO Subinterfaces of IACtivityInteraction for each type
+# Must implement Subinterfaces of IACtivityInteraction for each type
 # https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#appendix-c-example-definitions-for-activities-of-type-cmiinteraction
+
 
 class IActivityDefinition(IActivityInteraction):
     """
@@ -219,6 +230,7 @@ class IActivityDefinition(IActivityInteraction):
                         title=u'Activity definition extensions.',
                         required=False)
 
+
 class IActivity(IXAPIBase):
     """
     A Statement can represent an Activity as the Object of the Statement.
@@ -234,6 +246,7 @@ class IActivity(IXAPIBase):
                         title=u'Metadata about the activity',
                         required=False)
 
+
 class IStatementRef(IXAPIBase):
     """
     A Statement Reference is a pointer to another pre-existing Statement.
@@ -245,7 +258,8 @@ class IStatementRef(IXAPIBase):
     """
 
     id = ValidTextLine(title=u'ID for the statement we are referencing',
-                  required=True)
+                       required=True)
+
 
 class IContextActivities(IXAPIBase):
     """
@@ -279,6 +293,7 @@ class IContextActivities(IXAPIBase):
                         value_type=Object(IActivity),
                         required=False)
 
+
 class IContext(IXAPIBase):
     """
     The "context" provides a place to add some contextual information to a Statement.
@@ -289,9 +304,9 @@ class IContext(IXAPIBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#246-context
     """
 
-    #XXX: Use a field that actually validates UUID. Will be assigned
+    # Use a field that actually validates UUID. Will be assigned
     registration = ValidTextLine(title=u'The registration that the Statement is associated with.',
-                       required=False)
+                                 required=False)
 
     instructor = Object(INamedEntity,
                         title=u'Instructor that the Statement relates to, if not included as the Actor of the Statement.',
@@ -311,7 +326,7 @@ class IContext(IXAPIBase):
     platform = ValidTextLine(title=u'Platform used in the experience of this learning activity.',
                              required=False)
 
-    # TODO actually validate proper language code
+    # Actually validate proper language code
     language = ValidTextLine(title=u'Code representing the language in which the experience \
     being recorded in this Statement (mainly) occurred in, if applicable and known.',
                              required=False)
@@ -336,24 +351,24 @@ class IScore(IXAPIBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#Score
     """
 
-    scaled = Float(title=u'Scaled score',
-                   description=u'The score related to the experience as modified by scaling and/or normalization.',
-                   required=False,
-                   min=-1.0,
-                   max=1.0)
+    scaled = Number(title=u'Scaled score',
+                    description=u'The score related to the experience as modified by scaling and/or normalization.',
+                    required=False,
+                    min=-1.0,
+                    max=1.0)
 
-    # TODO: validate this based on min and max on this object
-    raw = Float(title=u'Raw Score',
-                description=u'The score achieved by the Actor in the experience described by the Statement.',
+    # Validate this based on min and max on this object
+    raw = Number(title=u'Raw Score',
+                 description=u'The score achieved by the Actor in the experience described by the Statement.',
+                 required=False)
+
+    min = Number(title=u'Min Score',
+                 description=u'The lowest possible score for the experience described by the Statement.',
                 required=False)
 
-    min = Float(title=u'Min Score',
-                description=u'The lowest possible score for the experience described by the Statement.',
-                required=False)
-
-    max = Float(title=u'Max Score',
-                description=u'The highest possible score for the experience described by the Statement.',
-                required=False)
+    max = Number(title=u'Max Score',
+                 description=u'The highest possible score for the experience described by the Statement.',
+                 required=False)
 
 
 class IResult(IXAPIBase):
@@ -392,19 +407,20 @@ class IStatementBase(IXAPIBase):
     actor = Object(INamedEntity,
                    title=u'The Actor defines who performed the action',
                    required=True)
-    
+
     verb = Object(IVerb,
                   title=u'Action taken by the Actor.',
                   required=True)
-    
+
     object = Attribute(u'Base type for a statement.')
 
-    timestamp = ValidDatetime(title=u'Timestamp of when the events described within this Statement occurred.')
+    timestamp = ValidDatetime(
+        title=u'Timestamp of when the events described within this Statement occurred.')
 
     context = Object(IContext,
                      title=u'Context that gives the Statement more meaning.',
                      required=False)
-    
+
     attachments = ListOrTuple(title=u'Headers for Attachments to the Statement.',
                               value_type=Object(IAttachment),
                               required=False)
@@ -428,6 +444,7 @@ class ISubStatement(IStatementBase):
                      title=u'The thing that was acted on.',
                      required=True)
 
+
 class IStatement(IStatementBase):
     """
     Statements are the evidence for any sort of experience or event which 
@@ -440,7 +457,7 @@ class IStatement(IStatementBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#statements
     """
 
-    #XXX: Use a field that actually validates UUID. Will be assigned
+    # Use a field that actually validates UUID. Will be assigned
     # by the LRS if not provided
     id = ValidTextLine(title=u'The UUID for this statement',
                        required=False)
@@ -468,4 +485,3 @@ class IStatement(IStatementBase):
     version = ValidTextLine(title=u'version',
                             description=u'The Statement’s associated xAPI version',
                             required=False)
-

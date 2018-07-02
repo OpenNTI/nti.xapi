@@ -7,8 +7,8 @@ from __future__ import absolute_import
 
 # pylint: disable=protected-access,too-many-public-methods
 
-from hamcrest import assert_that
 from hamcrest import is_
+from hamcrest import assert_that
 from hamcrest import instance_of
 from hamcrest import has_entries
 
@@ -20,18 +20,18 @@ from nti.externalization.internalization import update_from_external_object
 
 from nti.externalization.externalization import to_external_object
 
-from . import SharedConfiguringTestLayer
+from nti.xapi.interfaces import ILanguageMap
 
-from ..interfaces import ILanguageMap
+from nti.xapi.language_map import LanguageMap
 
-from ..language_map import LanguageMap
+from nti.xapi.tests import SharedConfiguringTestLayer
 
 
 class TestLanguageMap(unittest.TestCase):
 
     def test_implements(self):
         assert_that(LanguageMap(), verifiably_provides(ILanguageMap))
-    
+
     def test_InitNoArgs(self):
         lmap = LanguageMap()
         assert_that(lmap, is_({}))
@@ -55,11 +55,15 @@ class TestLanguageMap(unittest.TestCase):
             LanguageMap({"en-US": {"nested": "object"}})
 
     def test_InitDict(self):
-        lmap = LanguageMap({"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"})
+        lmap = LanguageMap(
+            {"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"}
+        )
         self.mapVerificationHelper(lmap)
 
     def test_InitLanguageMap(self):
-        arg = LanguageMap({"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"})
+        arg = LanguageMap(
+            {"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"}
+        )
         lmap = LanguageMap(arg)
         self.mapVerificationHelper(lmap)
 
@@ -99,16 +103,22 @@ class TestLanguageMap(unittest.TestCase):
                                       'fr-CA', 'CA-test',
                                       'fr-FR', 'FR-test'))
 
+
 class TestLanguageMapIO(TestLanguageMap):
 
     layer = SharedConfiguringTestLayer
-    
+
     def test_from_external_object(self):
         lm = LanguageMap()
-        update_from_external_object(lm, {"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"})
+        update_from_external_object(
+            lm, {"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"}
+        )
         self.mapVerificationHelper(lm)
 
     def test_to_external_object(self):
-        lm = LanguageMap({"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"})
+        lm = LanguageMap(
+            {"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"}
+        )
         ext = to_external_object(lm)
-        assert_that(ext, is_({"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"}))
+        assert_that(ext,
+                    is_({"en-US": "US-test", "fr-CA": "CA-test", "fr-FR": "FR-test"}))
