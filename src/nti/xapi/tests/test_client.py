@@ -39,7 +39,7 @@ class TestClient(unittest.TestCase):
         return path
 
     @fudge.patch('requests.Session.get')
-    def test_get_accounts(self, mock_ss):
+    def test_get_about(self, mock_ss):
         with codecs.open(self.about_file, "r", "UTF-8") as fp:
             data = fp.read()
 
@@ -57,3 +57,29 @@ class TestClient(unittest.TestCase):
 
         about = client.about()
         assert_that(about, is_(none()))
+
+    @property
+    def statement_file(self):
+        path = os.path.join(os.path.dirname(__file__),
+                            "data", "about.json")
+        return path
+    
+    @fudge.patch('requests.Session.get')
+    def test_get_statement(self, mock_ss):
+        with codecs.open(self.statement_file, "r", "UTF-8") as fp:
+            data = fp.read()
+
+        # success
+        data = fudge.Fake().has_attr(text=data).has_attr(ok=True)
+        mock_ss.is_callable().returns(data)
+
+        client = self.get_client()
+        result = client.get_statement("86187498f16f")
+        assert_that(result, is_not(none()))
+
+        # failed
+        data = fudge.Fake().has_attr(ok=False).has_attr(status_code=404)
+        mock_ss.is_callable().returns(data)
+
+        result = client.get_statement("notfound")
+        assert_that(result, is_(none()))
