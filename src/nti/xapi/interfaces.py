@@ -17,14 +17,14 @@ from zope.interface import Attribute
 from zope.interface.common.mapping import IMapping
 
 from nti.schema.field import Bool
-from nti.schema.field import Float
+from nti.schema.field import Number
 from nti.schema.field import Object
 from nti.schema.field import Variant
 from nti.schema.field import ValidURI
 from nti.schema.field import Timedelta
 from nti.schema.field import ListOrTuple
 from nti.schema.field import ValidDatetime
-from nti.schema.field import ValidTextLine
+from nti.schema.field import DecodingValidTextLine as ValidTextLine
 
 
 class Version(object):
@@ -201,7 +201,7 @@ class IActivityInteraction(IXAPIBase):
     The structure of this pattern varies depending on the interactionType.',
                                           required=False)
 
-# TODO: Subinterfaces of IACtivityInteraction for each type
+# Must implement Subinterfaces of IACtivityInteraction for each type
 # https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#appendix-c-example-definitions-for-activities-of-type-cmiinteraction
 
 
@@ -304,7 +304,7 @@ class IContext(IXAPIBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#246-context
     """
 
-    # XXX: Use a field that actually validates UUID. Will be assigned
+    # Use a field that actually validates UUID. Will be assigned
     registration = ValidTextLine(title=u'The registration that the Statement is associated with.',
                                  required=False)
 
@@ -326,7 +326,7 @@ class IContext(IXAPIBase):
     platform = ValidTextLine(title=u'Platform used in the experience of this learning activity.',
                              required=False)
 
-    # TODO actually validate proper language code
+    # Actually validate proper language code
     language = ValidTextLine(title=u'Code representing the language in which the experience \
     being recorded in this Statement (mainly) occurred in, if applicable and known.',
                              required=False)
@@ -351,24 +351,24 @@ class IScore(IXAPIBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#Score
     """
 
-    scaled = Float(title=u'Scaled score',
-                   description=u'The score related to the experience as modified by scaling and/or normalization.',
-                   required=False,
-                   min=-1.0,
-                   max=1.0)
+    scaled = Number(title=u'Scaled score',
+                    description=u'The score related to the experience as modified by scaling and/or normalization.',
+                    required=False,
+                    min=-1.0,
+                    max=1.0)
 
-    # TODO: validate this based on min and max on this object
-    raw = Float(title=u'Raw Score',
-                description=u'The score achieved by the Actor in the experience described by the Statement.',
+    # Validate this based on min and max on this object
+    raw = Number(title=u'Raw Score',
+                 description=u'The score achieved by the Actor in the experience described by the Statement.',
+                 required=False)
+
+    min = Number(title=u'Min Score',
+                 description=u'The lowest possible score for the experience described by the Statement.',
                 required=False)
 
-    min = Float(title=u'Min Score',
-                description=u'The lowest possible score for the experience described by the Statement.',
-                required=False)
-
-    max = Float(title=u'Max Score',
-                description=u'The highest possible score for the experience described by the Statement.',
-                required=False)
+    max = Number(title=u'Max Score',
+                 description=u'The highest possible score for the experience described by the Statement.',
+                 required=False)
 
 
 class IResult(IXAPIBase):
@@ -457,7 +457,7 @@ class IStatement(IStatementBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#statements
     """
 
-    # XXX: Use a field that actually validates UUID. Will be assigned
+    # Use a field that actually validates UUID. Will be assigned
     # by the LRS if not provided
     id = ValidTextLine(title=u'The UUID for this statement',
                        required=False)
