@@ -30,11 +30,11 @@ class LRSClient(object):
         :param endpoint: lrs endpoint
         :type endpoint: str | unicode
         :param version: Version used for lrs communication
-        :type version: str | unicode
+        :type version: str
         :param username: Username for lrs. Used to build the authentication string.
-        :type username: str | unicode
+        :type username: str
         :param password: Password for lrs. Used to build the authentication string.
-        :type password: str | unicode
+        :type password: str
         """
         self.version = version
         self.endpoint = endpoint
