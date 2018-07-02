@@ -48,7 +48,7 @@ class LanguageMap(dict):
 class LanguageMapIO(ExternalizableInstanceDict):
 
     def __init__(self, replacement):
-        ExternalizableInstanceDict.__init__(self, replacement)
+        ExternalizableInstanceDict.__init__(self)
         self._ext_self = replacement
 
     def _ext_setattr(self, ext_self, k, v):  # pylint: disable: arguments-differ
