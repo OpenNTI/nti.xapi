@@ -1,5 +1,6 @@
 import codecs
-from setuptools import setup, find_packages
+from setuptools import setup
+from setuptools import find_packages
 
 entry_points = {
     'console_scripts': [
@@ -15,9 +16,11 @@ TESTS_REQUIRE = [
     'zope.testrunner',
 ]
 
+
 def _read(fname):
     with codecs.open(fname, encoding='utf-8') as f:
         return f.read()
+
 
 setup(
     name='nti.xapi',
@@ -27,7 +30,7 @@ setup(
     description="NTI xAPI",
     long_description=_read('README.rst'),
     license='Apache',
-    keywords='Property',
+    keywords='xAPI',
     classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -35,7 +38,7 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
