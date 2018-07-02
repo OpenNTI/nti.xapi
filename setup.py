@@ -47,8 +47,10 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
+        'nti.externalization',
+        'six',
         'zope.component',
-        'zope.interface'
+        'zope.interface',
     ],
     extras_require={
         'test': TESTS_REQUIRE,
