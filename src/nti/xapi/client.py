@@ -99,7 +99,7 @@ class LRSClient(object):
 
         :param statement: Statement object to be saved
         :type statement: :class:`nti.xapi.interfaces.IStatement`
-        :return: Tthe saved statement as content
+        :return: Tthe saved statement
         :rtype: :class:`nti.xapi.interfaces.IStatement`
         """
         statement = IStatement(statement, statement)
@@ -127,7 +127,7 @@ class LRSClient(object):
 
         :param statements: A list of statement objects to be saved
         :type statements: :class:`nti.xapi.interfaces.IStatementList`
-        :return: The saved list of statements as content
+        :return: The saved list of statements
         :rtype: :class:`nti.xapi.interfaces.IStatementList`
         """
         statements = IStatementList(statements, statements)
@@ -153,7 +153,7 @@ class LRSClient(object):
 
         :param statement_id: The UUID of the desired statement
         :type statement_id: str
-        :return: The retrieved statement as content
+        :return: The retrieved statement
         :rtype: :class:`nti.xapi.interfaces.IStatement`
         """
         result = None
@@ -178,7 +178,7 @@ class LRSClient(object):
 
         :param statement_id: The UUID of the desired voided statement
         :type statement_id: str
-        :return: The retrieved voided statement as content
+        :return: The retrieved voided statement
         :rtype: :class:`nti.xapi.interfaces.IStatement`
         """
         result = None
@@ -197,9 +197,114 @@ class LRSClient(object):
             return result
     retrieve_voided_statement = get_voided_statement
 
+    def query_statements(self, query, modeled=True):
+        """
+        Query the LRS for statements with specified parameters
+
+        :param query: Dictionary of query parameters and their values
+        :type query: dict
+        :return: The returned StatementsResult object 
+        :rtype: :class:`nti.xapi.interfaces.IStatementResult`
+
+        .. note::
+           Optional query parameters are\n
+               **statementId:** (*str*) ID of the Statement to fetch
+               **voidedStatementId:** (*str*) ID of the voided Statement to fetch
+               **agent:** (*Agent* |*Group*) Filter to return Statements for which the
+               specified Agent or Group is the Actor
+               **verb:** (*Verb id IRI*) Filter to return Statements matching the verb id
+               **activity:** (*Activity id IRI*) Filter to return Statements for which the
+               specified Activity is the Object
+               **registration:** (*UUID*) Filter to return Statements matching the specified registration ID
+               **related_activities:** (*bool*) Include Statements for which the Object,
+               Context Activities or any Sub-Statement
+               properties match the specified Activity
+               **related_agents:** (*bool*) Include Statements for which the Actor, Object,
+               Authority, Instructor, Team, or any Sub-Statement properties match the specified Agent
+               **since:** (*datetime*) Filter to return Statements stored since the specified datetime
+               **until:** (*datetime*) Filter to return Statements stored at or before the specified datetime
+               **limit:** (*positive int*) Allow <limit> Statements to be returned. 0 indicates the
+               maximum supported by the LRS
+               **format:** (*str* {"ids"|"exact"|"canonical"}) Manipulates how the LRS handles
+               importing and returning the statements
+               **attachments:** (*bool*) If true, the LRS will use multipart responses and include
+               all attachment data per Statement returned.
+               Otherwise, application/json is used and no attachment information will be returned
+               **ascending:** (*bool*) If true, the LRS will return results in ascending order of
+               stored time (oldest first)
+        """
+        params = {}
+        param_keys = (
+            "registration",
+            "since",
+            "until",
+            "limit",
+            "ascending",
+            "related_activities",
+            "related_agents",
+            "format",
+            "attachments",
+        )
+        # parase query data
+        for k, v in query.items():
+            if v is not None:
+                if k == "verb" or k == "activity":
+                    params[k] = getattr(v, 'id' , v)
+                elif k in param_keys or k == 'agent':
+                    params[k] = to_external_object(v)
+
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "statements")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=query)
+            if response.ok:
+                data = self.prepare_json_text(response.text)
+                result = self.read_statement_result(data) if modeled else json.loads(data)
+            else:
+                logger.error("Invalid server response [%s] while querying statements",
+                             response.status_code)
+            return result
+
+    def more_statements(self, more_url, modeled=True):
+        """
+        Query the LRS for more statements
+
+        :param more_url: URL from a StatementsResult object used to retrieve more statements
+        :type more_url: str
+        :return: The returned StatementsResult object
+        :rtype: :class:`nti.xapi.interfaces.IStatementResult`
+        """
+        result = None
+        more_url = getattr(more_url, "more", more_url)
+        more_url = urllib_parse.urljoin(self.get_endpoint_server_root(), more_url)
+        with self.session() as session:
+            # pylint: disable=too-many-function-args
+            response = session.get(more_url, auth=self.auth)
+            if response.ok:
+                data = self.prepare_json_text(response.text)
+                result = self.read_statement_result(data) if modeled else json.loads(data)
+            else:
+                logger.error("Invalid server response [%s] while getting more statements",
+                             response.status_code)
+            return result
+
     def read_statement(self, data):
         data = json.loads(data, "utf-8")
         return data
 
+    def read_statement_result(self, data):
+        data = json.loads(data, "utf-8")
+        return data
 
+    def get_endpoint_server_root(self):
+        """
+        Parses RemoteLRS object's endpoint and returns its root
+
+        :return: Root of the RemoteLRS object endpoint
+        :rtype: str
+        """
+        parsed = urllib_parse.urlparse(self.endpoint)
+        root = parsed.scheme + "://" + parsed.netloc
+        return root
 client = LRSClient
