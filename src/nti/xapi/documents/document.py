@@ -17,6 +17,7 @@ from nti.schema.fieldproperty import createDirectFieldProperties
 from nti.schema.schema import SchemaConfigured
 
 from nti.xapi.documents.interfaces import IDocument
+from nti.xapi.documents.interfaces import IStateDocument
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -25,3 +26,8 @@ logger = __import__('logging').getLogger(__name__)
 @interface.implementer(IDocument)
 class Document(SchemaConfigured):
     createDirectFieldProperties(IDocument)
+
+
+@interface.implementer(IStateDocument)
+class StateDocument(Document):
+    createDirectFieldProperties(IStateDocument)
