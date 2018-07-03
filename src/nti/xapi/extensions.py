@@ -12,22 +12,24 @@ import six
 
 from zope import interface
 
-from nti.externalization.datastructures import ExternalizableInstanceDict
+from nti.schema.field import ValidURI
 
-from nti.xapi.interfaces import ILanguageMap
+from nti.xapi.interfaces import IExtensions
 
 from nti.xapi.io_datastructures import MappingIO
 
 logger = __import__('logging').getLogger(__name__)
 
 
-def _check_lang_value(value):
-    if not isinstance(value, six.string_types):
-        raise TypeError("Value must be of type basestring")
+KEY_VALIDATOR = ValidURI(required=True)
+
+def _check_key(ext, key):
+    bound_field = KEY_VALIDATOR.bind(ext)
+    bound_field.validate(key)
 
 
-@interface.implementer(ILanguageMap)
-class LanguageMap(dict):
+@interface.implementer(IExtensions)
+class Extensions(dict):
 
     def __init__(self, *args, **kwargs):
         """
@@ -38,14 +40,13 @@ class LanguageMap(dict):
         """
         check_args = dict(*args, **kwargs)
         # validate values
-        for value in check_args.values():
-            _check_lang_value(value)
-        super(LanguageMap, self).__init__(check_args)
+        for key in check_args.keys():
+            _check_key(self, key)
+        super(Extensions, self).__init__(check_args)
 
     def __setitem__(self, key, value):
-        _check_lang_value(value)
-        super(LanguageMap, self).__setitem__(key, value)
+        _check_key(self, key)
+        super(Extensions, self).__setitem__(key, value)
 
-
-class LanguageMapIO(MappingIO):
+class ExtensionsIO(MappingIO):
     pass

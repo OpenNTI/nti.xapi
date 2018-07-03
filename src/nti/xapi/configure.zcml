@@ -10,4 +10,8 @@
 	     for=".interfaces.ILanguageMap"
 	     provides="nti.externalization.interfaces.IInternalObjectIO" />
 
+    <adapter factory=".extensions.ExtensionsIO"
+	     for=".interfaces.IExtensions"
+	     provides="nti.externalization.interfaces.IInternalObjectIO" />
+
 </configure>
