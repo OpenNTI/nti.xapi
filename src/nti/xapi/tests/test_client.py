@@ -63,9 +63,15 @@ class TestClient(unittest.TestCase):
     @property
     def statement_file(self):
         path = os.path.join(os.path.dirname(__file__),
-                            "data", "about.json")
+                            "data", "statement.json")
         return path
-    
+
+    @property
+    def statement_result_file(self):
+        path = os.path.join(os.path.dirname(__file__),
+                            "data", "statement_result.json")
+        return path
+
     @fudge.patch('requests.Session.get')
     def test_get_statement(self, mock_ss):
         with codecs.open(self.statement_file, "r", "UTF-8") as fp:
@@ -105,7 +111,7 @@ class TestClient(unittest.TestCase):
 
         result = client.get_voided_statement("notfound")
         assert_that(result, is_(none()))
-        
+
     @fudge.patch('requests.Session.put',
                  'nti.xapi.client.to_external_object',
                  'nti.xapi.client.update_from_external_object')
@@ -146,4 +152,25 @@ class TestClient(unittest.TestCase):
         data = fudge.Fake().has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.save_statements([statement])
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.get',
+                 'nti.xapi.client.to_external_object')
+    def test_query_statements(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        with codecs.open(self.statement_result_file, "r", "UTF-8") as fp:
+            data = fp.read()
+
+        # success
+        data = fudge.Fake().has_attr(text=data).has_attr(ok=True)
+        mock_ss.is_callable().returns(data)
+
+        query = {'verb': 1, 'agent': 1, 'ascending': False}
+        client = self.get_client()
+        result = client.query_statements(query)
+        assert_that(result, is_not(none()))
+
+        data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
+        mock_ss.is_callable().returns(data)
+        result = client.query_statements(query)
         assert_that(result, is_(none()))
