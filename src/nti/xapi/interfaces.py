@@ -501,6 +501,6 @@ class IStatementList(interface.Interface):
 
 class IStatementResult(IStatementList):
 
-    more = ValidURI(title=u'more',
-                    description=u'URL retrieve more statements',
-                    required=False)
+    more = ValidTextLine(title=u'more',
+                         description=u'URL retrieve more statements',
+                         required=False)
