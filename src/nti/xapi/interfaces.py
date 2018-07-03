@@ -239,8 +239,8 @@ class IActivity(IXAPIBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2441-when-the-objecttype-is-activity
     """
 
-    id = ValidURI(title=u'An identifier for a single unique Activity',
-                  required=True)
+    id = ValidTextLine(title=u'An identifier for a single unique Activity',
+                       required=True)
 
     definition = Object(IActivityDefinition,
                         title=u'Metadata about the activity',

@@ -15,16 +15,22 @@ import simplejson as json
 import six
 from six.moves import urllib_parse
 
+from zope.interface.common.idatetime import IDateTime
+
 from nti.externalization.externalization import to_external_object
 
 from nti.externalization.internalization import update_from_external_object
 
 from nti.xapi.about import About
 
+from nti.xapi.documents.document import StateDocument
+
+from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import Version
-from nti.xapi.interfaces import IStatement 
+from nti.xapi.interfaces import IActivity
+from nti.xapi.interfaces import IStatement
 from nti.xapi.interfaces import IStatementList
- 
+
 logger = __import__('logging').getLogger(__name__)
 
 
@@ -120,7 +126,7 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while saving statement.",
                              response.status_code)
             return statement
-    
+
     def save_statements(self, statements):
         """
         Save statements to LRS and update their statement id's
@@ -146,7 +152,7 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while saving statements.",
                              response.status_code)
             return statements
-    
+
     def get_statement(self, statement_id, modeled=True):
         """
         Retrieve a statement from the server from its id
@@ -165,7 +171,8 @@ class LRSClient(object):
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement(data) if modeled else json.loads(data)
+                result = self.read_statement(
+                    data) if modeled else json.loads(data)
             else:
                 logger.error("Invalid server response [%s] while getting statement %s",
                              response.status_code, statement_id)
@@ -190,7 +197,8 @@ class LRSClient(object):
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement(data) if modeled else json.loads(data)
+                result = self.read_statement(
+                    data) if modeled else json.loads(data)
             else:
                 logger.error("Invalid server response [%s] while getting voided statement %s",
                              response.status_code, statement_id)
@@ -249,9 +257,11 @@ class LRSClient(object):
         for k, v in query.items():
             if v is not None:
                 if k == "verb" or k == "activity":
-                    params[k] = getattr(v, 'id' , v)
-                elif k in param_keys or k == 'agent':
+                    params[k] = getattr(v, 'id', v)
+                elif k in param_keys:
                     params[k] = to_external_object(v)
+                elif k == 'agent':
+                    params[k] = json.dumps(to_external_object(v))
 
         result = None
         with self.session() as session:
@@ -277,7 +287,8 @@ class LRSClient(object):
         """
         result = None
         more_url = getattr(more_url, "more", more_url)
-        more_url = urllib_parse.urljoin(self.get_endpoint_server_root(), more_url)
+        more_url = urllib_parse.urljoin(self.get_endpoint_server_root(),
+                                        more_url)
         with self.session() as session:
             # pylint: disable=too-many-function-args
             response = session.get(more_url, auth=self.auth)
@@ -297,6 +308,105 @@ class LRSClient(object):
         data = json.loads(data, "utf-8")
         return data
 
+    # states
+
+    def get_state_ids(self, activity, agent, registration=None, since=None):
+        """
+        Retrieve state id's from the LRS with the provided parameters
+
+        :param activity: Activity object of desired states
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of desired states
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param registration: Registration UUID of desired states
+        :type registration: str
+        :param since: Retrieve state id's since this time
+        :type since: str
+        :return: The retrieved state id's
+        """
+        agent = IAgent(agent, agent)
+        activity = IActivity(activity, activity)
+
+        # set pararms
+        params = {
+            "activityId": activity.id,
+            "agent": json.dumps(to_external_object(agent))
+        }
+        if registration is not None:
+            params["registration"] = registration
+        if since is not None:
+            params["since"] = to_external_object(since)
+
+        # query
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/state")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=params)
+            if response.ok:
+                data = self.prepare_json_text(response.text)
+                result = json.loads(data)
+            else:
+                logger.error("Invalid server response [%s] while getting state ids",
+                             response.status_code)
+            return result
+    retrieve_state_ids = get_state_ids
+
+    def get_state(self, activity, agent, state_id, registration=None):
+        """
+        Retrieve state from LRS with the provided parameters
+
+        :param activity: Activity object of desired state
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of desired state
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param state_id: UUID of desired state
+        :type state_id: str
+        :param registration: registration UUID of desired state
+        :type registration: str 
+        :return: State document
+        :rtype: :class:`nti.xapi.document.interfaces.IStateDocument`
+        """
+        agent = IAgent(agent, agent)
+        activity = IActivity(activity, activity)
+
+        # set pararms
+        params = {
+            'stateId': state_id,
+            "activityId": activity.id,
+            "agent": json.dumps(to_external_object(agent))
+        }
+        if registration is not None:
+            params["registration"] = registration
+
+        # query
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/state")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=params)
+            if response.ok:
+                data = response.content
+                result = StateDocument(id=state_id,
+                                       content=data,
+                                       activity=activity,
+                                       agent=agent)
+                headers = response.headers
+                if headers.get("lastModified", None) is not None:
+                    result.timestamp = IDateTime(headers['lastModified'])
+                if headers.get("contentType", None) is not None:
+                    result.content_type = headers["contentType"]
+                if headers.get("etag", None) is not None:
+                    result.content_type = headers["etag"]
+            elif response.status_code != 404:
+                logger.error("Invalid server response [%s] while getting state %s",
+                             response.status_code, state_id)
+
+            return result
+    retrieve_state = get_state
+
+    # misc
+
     def get_endpoint_server_root(self):
         """
         Parses RemoteLRS object's endpoint and returns its root
@@ -307,4 +417,6 @@ class LRSClient(object):
         parsed = urllib_parse.urlparse(self.endpoint)
         root = parsed.scheme + "://" + parsed.netloc
         return root
+
+
 client = LRSClient

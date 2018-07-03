@@ -16,10 +16,16 @@ from hamcrest import assert_that
 
 import codecs
 import unittest
+from datetime import datetime
 
 import fudge
 
+from zope import interface
+
 from nti.xapi.client import LRSClient
+
+from nti.xapi.interfaces import IAgent
+from nti.xapi.interfaces import IActivity
 
 from nti.xapi.tests import SharedConfiguringTestLayer
 
@@ -175,7 +181,7 @@ class TestClient(unittest.TestCase):
         result = client.query_statements(query)
         assert_that(result, is_(none()))
 
-    @fudge.patch('requests.Session.get')
+    @fudge.patch('requests.Session.get',)
     def test_more_statements(self, mock_ss):
         with codecs.open(self.statement_result_file, "r", "UTF-8") as fp:
             data = fp.read()
@@ -191,4 +197,61 @@ class TestClient(unittest.TestCase):
         data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.more_statements("more/1234")
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.get',
+                 'nti.xapi.client.to_external_object')
+    def test_retrieve_state_ids(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        activity = fudge.Fake().has_attr(id='yyy')
+        # success
+        data = fudge.Fake().has_attr(text=b'["aaa"]').has_attr(ok=True)
+        mock_ss.is_callable().returns(data)
+
+        client = self.get_client()
+        result = client.retrieve_state_ids(activity, 1, "zzz", "from")
+        assert_that(result, is_not(none()))
+
+        data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
+        mock_ss.is_callable().returns(data)
+        result = client.retrieve_state_ids(activity, 1, "zzz", "from")
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.get',
+                 'nti.xapi.client.to_external_object')
+    def test_retrieve_state(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+
+        @interface.implementer(IActivity)
+        class Activity(object):
+            id = 'activity'
+            definition = None
+
+        @interface.implementer(IAgent)
+        class Agent(object):
+            mbox = None
+            name = None
+            openid = None
+            account = None
+            mbox_sha1sum = None
+
+        headers = {
+            'etag': 'xyz',
+            'contentType': 'msword',
+            'lastModified': datetime.now()
+        }
+        agent = Agent()
+        activity = Activity()
+
+        # success
+        response = fudge.Fake().has_attr(content=b'bytes').has_attr(ok=True).has_attr(headers=headers)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.get_state(activity, agent, 'uuid', 'reg')
+        assert_that(result, is_not(none()))
+
+        response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.get_state(activity, agent, 'uuid')
         assert_that(result, is_(none()))
