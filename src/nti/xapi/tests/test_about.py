@@ -8,6 +8,7 @@ from __future__ import absolute_import
 # pylint: disable=protected-access,too-many-public-methods
 
 from hamcrest import assert_that
+from hamcrest import has_entries
 from hamcrest import is_
 from hamcrest import instance_of
 from hamcrest import contains
@@ -23,6 +24,7 @@ from nti.externalization.externalization import to_external_object
 from . import SharedConfiguringTestLayer
 
 from ..interfaces import IAbout
+from ..interfaces import IExtensions
 from ..interfaces import Version
 
 from ..about import About
@@ -59,7 +61,14 @@ class TestAboutIO(TestAbout):
         }
     
     def test_from_external_object(self):
-        pass
+        about = About()
+        update_from_external_object(about, self.data)
+
+        assert_that(about.version, contains('1.0.0'))
+        assert_that(about.extensions, has_entries('http://www.example.com/ext/a', 'a',
+                                                  'http://www.example.com/ext/b', 'b'))
+
+        assert_that(about.extensions, verifiably_provides(IExtensions))
 
     def test_to_external_object(self):
         about = About(version=['1.0.0'])

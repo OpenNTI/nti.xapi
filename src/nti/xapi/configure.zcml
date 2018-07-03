@@ -20,4 +20,8 @@
 	     for=".interfaces.IExtensions"
 	     provides="nti.externalization.interfaces.IInternalObjectIO" />
 
+    <adapter factory=".extensions.Extensions"
+	     for="dict"
+	     provides=".interfaces.IExtensions" />
+
 </configure>
