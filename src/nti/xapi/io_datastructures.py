@@ -9,6 +9,9 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from nti.externalization.datastructures import ExternalizableInstanceDict
+from nti.externalization.datastructures import InterfaceObjectIO
+
+from .interfaces import IXAPIBase
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -36,3 +39,13 @@ class MappingIO(ExternalizableInstanceDict):
             k: self._ext_getattr(self._ext_self, k)
             for k in self._ext_self if not k.startswith('_')
         }
+
+
+class XAPIBaseIO(InterfaceObjectIO):
+
+    _ext_iface_upper_bound = IXAPIBase
+
+    def toExternalObject(self, *args, **kwargs):
+        ext = super(XAPIBaseIO, self).toExternalObject(*args, **kwargs)
+        ext.pop('Class', None)
+        return ext
