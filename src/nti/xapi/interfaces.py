@@ -482,15 +482,13 @@ class IStatement(IStatementBase):
                        title=u'Agent or Group who is asserting this Statement is true.',
                        required=False)
 
-    version = ValidTextLine(title=u'version',
-                            description=u'The Statement’s associated xAPI version',
-                            required=False)
+    
 
 
 class IStatementList(interface.Interface):
 
     statements = ListOrTuple(title=u'statements',
-                             description=u'The support versions',
+                             description=u'The Statements',
                              required=True,
                              value_type=Object(IStatement),
                              default=())
@@ -499,3 +497,10 @@ class IStatementList(interface.Interface):
         """
         Return an iterable with the statements in this list
         """
+
+
+class IStatementResult(IStatementList):
+
+    more = ValidURI(title=u'more',
+                    description=u'URL retrieve more statements',
+                    required=False)
