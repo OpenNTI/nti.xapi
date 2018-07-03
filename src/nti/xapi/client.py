@@ -15,11 +15,15 @@ import simplejson as json
 import six
 from six.moves import urllib_parse
 
+from zope.interface.common.idatetime import IDateTime
+
 from nti.externalization.externalization import to_external_object
 
 from nti.externalization.internalization import update_from_external_object
 
 from nti.xapi.about import About
+
+from nti.xapi.documents.document import StateDocument
 
 from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import Version
@@ -347,6 +351,59 @@ class LRSClient(object):
                              response.status_code)
             return result
     retrieve_state_ids = get_state_ids
+
+    def get_state(self, activity, agent, state_id, registration=None):
+        """
+        Retrieve state from LRS with the provided parameters
+
+        :param activity: Activity object of desired state
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of desired state
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param state_id: UUID of desired state
+        :type state_id: str
+        :param registration: registration UUID of desired state
+        :type registration: str 
+        :return: State document
+        :rtype: :class:`nti.xapi.document.interfaces.IStateDocument`
+        """
+        agent = IAgent(agent, agent)
+        activity = IActivity(activity, activity)
+
+        # set pararms
+        params = {
+            'stateId': state_id,
+            "activityId": activity.id,
+            "agent": json.dumps(to_external_object(agent))
+        }
+        if registration is not None:
+            params["registration"] = registration
+
+        # query
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/state")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=params)
+            if response.ok:
+                data = response.content
+                result = StateDocument(id=state_id,
+                                       content=data,
+                                       activity=activity,
+                                       agent=agent)
+                headers = response.headers
+                if headers.get("lastModified", None) is not None:
+                    result.timestamp = IDateTime(headers['lastModified'])
+                if headers.get("contentType", None) is not None:
+                    result.content_type = headers["contentType"]
+                if headers.get("etag", None) is not None:
+                    result.content_type = headers["etag"]
+            elif response.status_code != 404:
+                logger.error("Invalid server response [%s] while getting state %s",
+                             response.status_code, state_id)
+
+            return result
+    retrieve_state = get_state
 
     # misc
 
