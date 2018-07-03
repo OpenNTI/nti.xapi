@@ -126,3 +126,24 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(data)
         result = client.save_statement(statement)
         assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.post',
+                 'nti.xapi.client.to_external_object',
+                 'nti.xapi.client.update_from_external_object')
+    def test_save_statements(self, mock_ss, mock_ex, mock_in):
+        mock_ex.is_callable().returns_fake()
+        mock_in.is_callable().returns_fake()
+
+        # success
+        data = fudge.Fake().has_attr(text=b'["xxx"]').has_attr(status_code=204)
+        mock_ss.is_callable().returns(data)
+
+        statement = fudge.Fake().has_attr(id=b'yyy')
+        client = self.get_client()
+        result = client.save_statements([statement])
+        assert_that(result, is_not(none()))
+
+        data = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(data)
+        result = client.save_statements([statement])
+        assert_that(result, is_(none()))

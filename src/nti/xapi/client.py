@@ -21,7 +21,7 @@ from nti.externalization.internalization import update_from_external_object
 
 from nti.xapi.about import About
 
-from nti.xapi.interfaces import Version, IStatement
+from nti.xapi.interfaces import Version, IStatement, IStatementList
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -108,7 +108,7 @@ class LRSClient(object):
             params = {"statementId": sid} if sid else None
             payload = to_external_object(statement)
             # pylint: disable=too-many-function-args
-            response = method(session, url, auth=self.auth,
+            response = method(url, auth=self.auth,
                               data=payload, params=params)
             if (200 <= response.status_code < 300):
                 data = self.prepare_json_text(response.text)
@@ -118,6 +118,32 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while saving statement.",
                              response.status_code)
             return statement
+    
+    def save_statements(self, statements):
+        """
+        Save statements to LRS and update their statement id's
+
+        :param statements: A list of statement objects to be saved
+        :type statements: :class:`nti.xapi.interfaces.IStatementList`
+        :return: The saved list of statements as content
+        :rtype: :class:`nti.xapi.interfaces.IStatementList`
+        """
+        statements = IStatementList(statements, statements)
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "statements")
+            payload = to_external_object(statements)
+            # pylint: disable=too-many-function-args
+            response = session.post(url, payload, auth=self.auth)
+            if (200 <= response.status_code < 300):
+                data = self.prepare_json_text(response.text)
+                data = json.loads(data, "utf-8")
+                for s, statement_id in zip(statements, data):
+                    s.id = statement_id
+            else:
+                statements = None
+                logger.error("Invalid server response [%s] while saving statements.",
+                             response.status_code)
+            return statements
     
     def get_statement(self, statement_id, modeled=True):
         """
@@ -133,7 +159,7 @@ class LRSClient(object):
             url = urllib_parse.urljoin(self.endpoint, "statements")
             # pylint: disable=too-many-function-args
             payload = {"statementId": statement_id}
-            response = session.get(session, url, auth=self.auth,
+            response = session.get(url, auth=self.auth,
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
@@ -158,7 +184,7 @@ class LRSClient(object):
             url = urllib_parse.urljoin(self.endpoint, "statements")
             # pylint: disable=too-many-function-args
             payload = {"voidedStatementId": statement_id}
-            response = session.get(session, url, auth=self.auth,
+            response = session.get(url, auth=self.auth,
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
