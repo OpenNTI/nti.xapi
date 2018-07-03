@@ -364,7 +364,7 @@ class IScore(IXAPIBase):
 
     min = Number(title=u'Min Score',
                  description=u'The lowest possible score for the experience described by the Statement.',
-                required=False)
+                 required=False)
 
     max = Number(title=u'Max Score',
                  description=u'The highest possible score for the experience described by the Statement.',
@@ -485,3 +485,17 @@ class IStatement(IStatementBase):
     version = ValidTextLine(title=u'version',
                             description=u'The Statement’s associated xAPI version',
                             required=False)
+
+
+class IStatementList(interface.Interface):
+
+    statements = ListOrTuple(title=u'statements',
+                             description=u'The support versions',
+                             required=True,
+                             value_type=Object(IStatement),
+                             default=())
+
+    def __iter__():
+        """
+        Return an iterable with the statements in this list
+        """
