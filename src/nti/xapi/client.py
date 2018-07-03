@@ -21,8 +21,10 @@ from nti.externalization.internalization import update_from_external_object
 
 from nti.xapi.about import About
 
-from nti.xapi.interfaces import Version, IStatement, IStatementList
-
+from nti.xapi.interfaces import Version
+from nti.xapi.interfaces import IStatement 
+from nti.xapi.interfaces import IStatementList
+ 
 logger = __import__('logging').getLogger(__name__)
 
 
