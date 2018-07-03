@@ -38,11 +38,13 @@ class TestClient(unittest.TestCase):
                             "data", "about.json")
         return path
 
-    @fudge.patch('requests.Session.get')
-    def test_get_about(self, mock_ss):
+    @fudge.patch('requests.Session.get',
+                 'nti.xapi.client.update_from_external_object')
+    def test_get_about(self, mock_ss, mock_in):
         with codecs.open(self.about_file, "r", "UTF-8") as fp:
             data = fp.read()
 
+        mock_in.is_callable().returns_fake()
         # success
         data = fudge.Fake().has_attr(text=data).has_attr(ok=True)
         mock_ss.is_callable().returns(data)
@@ -82,4 +84,45 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(data)
 
         result = client.get_statement("notfound")
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.get')
+    def test_get_voided_statement(self, mock_ss):
+        with codecs.open(self.statement_file, "r", "UTF-8") as fp:
+            data = fp.read()
+
+        # success
+        data = fudge.Fake().has_attr(text=data).has_attr(ok=True)
+        mock_ss.is_callable().returns(data)
+
+        client = self.get_client()
+        result = client.get_voided_statement("86187498f16f")
+        assert_that(result, is_not(none()))
+
+        # failed
+        data = fudge.Fake().has_attr(ok=False).has_attr(status_code=404)
+        mock_ss.is_callable().returns(data)
+
+        result = client.get_voided_statement("notfound")
+        assert_that(result, is_(none()))
+        
+    @fudge.patch('requests.Session.put',
+                 'nti.xapi.client.to_external_object',
+                 'nti.xapi.client.update_from_external_object')
+    def test_save_statement(self, mock_ss, mock_ex, mock_in):
+        mock_ex.is_callable().returns_fake()
+        mock_in.is_callable().returns_fake()
+
+        # success
+        data = fudge.Fake().has_attr(text=b'').has_attr(status_code=204)
+        mock_ss.is_callable().returns(data)
+
+        statement = fudge.Fake().has_attr(id=b'xxx')
+        client = self.get_client()
+        result = client.save_statement(statement)
+        assert_that(result, is_not(none()))
+
+        data = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(data)
+        result = client.save_statement(statement)
         assert_that(result, is_(none()))

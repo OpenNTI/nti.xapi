@@ -15,7 +15,13 @@ import simplejson as json
 import six
 from six.moves import urllib_parse
 
-from nti.xapi.interfaces import Version
+from nti.externalization.externalization import to_external_object
+
+from nti.externalization.internalization import update_from_external_object
+
+from nti.xapi.about import About
+
+from nti.xapi.interfaces import Version, IStatement
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -78,22 +84,53 @@ class LRSClient(object):
             return result
 
     def read_about(self, data):
-        return data
+        result = About()
+        data = json.loads(data, "utf-8")
+        update_from_external_object(result, data)
+        return result
 
     # statements
 
+    def save_statement(self, statement):
+        """
+        Save statement to LRS and update statement id if necessary
+
+        :param statement: Statement object to be saved
+        :type statement: :class:`nti.xapi.interfaces.IStatement`
+        :return: Tthe saved statement as content
+        :rtype: :class:`nti.xapi.interfaces.IStatement`
+        """
+        statement = IStatement(statement, statement)
+        with self.session() as session:
+            sid = statement.id
+            url = urllib_parse.urljoin(self.endpoint, "statements")
+            method = session.put if sid else session.post
+            params = {"statementId": sid} if sid else None
+            payload = to_external_object(statement)
+            # pylint: disable=too-many-function-args
+            response = method(session, url, auth=self.auth,
+                              data=payload, params=params)
+            if (200 <= response.status_code < 300):
+                data = self.prepare_json_text(response.text)
+                update_from_external_object(statement, data)
+            else:
+                statement = None
+                logger.error("Invalid server response [%s] while saving statement.",
+                             response.status_code)
+            return statement
+    
     def get_statement(self, statement_id, modeled=True):
         """
         Retrieve a statement from the server from its id
 
         :param statement_id: The UUID of the desired statement
         :type statement_id: str
-        :return: LRS Response object with the retrieved statement as content
-        :rtype: :class:`tincan.lrs_response.LRSResponse`
+        :return: The retrieved statement as content
+        :rtype: :class:`nti.xapi.interfaces.IStatement`
         """
         result = None
         with self.session() as session:
-            url = urllib_parse.urljoin(self.endpoint, "about")
+            url = urllib_parse.urljoin(self.endpoint, "statements")
             # pylint: disable=too-many-function-args
             payload = {"statementId": statement_id}
             response = session.get(session, url, auth=self.auth,
@@ -107,7 +144,33 @@ class LRSClient(object):
             return result
     statement = retrieve_statement = get_statement
 
+    def get_voided_statement(self, statement_id, modeled=True):
+        """
+        Retrieve a voided statement from the server from its id
+
+        :param statement_id: The UUID of the desired voided statement
+        :type statement_id: str
+        :return: The retrieved voided statement as content
+        :rtype: :class:`nti.xapi.interfaces.IStatement`
+        """
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "statements")
+            # pylint: disable=too-many-function-args
+            payload = {"voidedStatementId": statement_id}
+            response = session.get(session, url, auth=self.auth,
+                                   params=payload)
+            if response.ok:
+                data = self.prepare_json_text(response.text)
+                result = self.read_statement(data) if modeled else json.loads(data)
+            else:
+                logger.error("Invalid server response [%s] while getting voided statement %s",
+                             response.status_code, statement_id)
+            return result
+    retrieve_voided_statement = get_voided_statement
+
     def read_statement(self, data):
+        data = json.loads(data, "utf-8")
         return data
 
 
