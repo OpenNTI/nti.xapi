@@ -174,3 +174,21 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(data)
         result = client.query_statements(query)
         assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.get')
+    def test_more_statements(self, mock_ss):
+        with codecs.open(self.statement_result_file, "r", "UTF-8") as fp:
+            data = fp.read()
+
+        # success
+        data = fudge.Fake().has_attr(text=data).has_attr(ok=True)
+        mock_ss.is_callable().returns(data)
+
+        client = self.get_client()
+        result = client.more_statements("more/1234")
+        assert_that(result, is_not(none()))
+
+        data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
+        mock_ss.is_callable().returns(data)
+        result = client.more_statements("more/1234")
+        assert_that(result, is_(none()))
