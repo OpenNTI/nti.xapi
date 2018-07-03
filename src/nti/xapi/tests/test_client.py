@@ -175,7 +175,7 @@ class TestClient(unittest.TestCase):
         result = client.query_statements(query)
         assert_that(result, is_(none()))
 
-    @fudge.patch('requests.Session.get')
+    @fudge.patch('requests.Session.get',)
     def test_more_statements(self, mock_ss):
         with codecs.open(self.statement_result_file, "r", "UTF-8") as fp:
             data = fp.read()
@@ -191,4 +191,22 @@ class TestClient(unittest.TestCase):
         data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.more_statements("more/1234")
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.get',
+                 'nti.xapi.client.to_external_object')
+    def test_retrieve_state_ids(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        activity = fudge.Fake().has_attr(id='yyy')
+        # success
+        data = fudge.Fake().has_attr(text=b'["aaa"]').has_attr(ok=True)
+        mock_ss.is_callable().returns(data)
+
+        client = self.get_client()
+        result = client.retrieve_state_ids(activity, 1, "zzz", "from")
+        assert_that(result, is_not(none()))
+
+        data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
+        mock_ss.is_callable().returns(data)
+        result = client.retrieve_state_ids(activity, 1, "zzz", "from")
         assert_that(result, is_(none()))
