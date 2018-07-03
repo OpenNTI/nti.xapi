@@ -1,0 +1,7 @@
+{
+    "version": ["1.0.0"],
+    "extensions": {
+        "extension-b": "http://www.example.com/ext/b",
+        "extension-a": "http://www.example.com/ext/a"
+    }
+}

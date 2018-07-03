@@ -54,6 +54,8 @@ setup(
         'setuptools',
         'nti.externalization',
         'nti.schema',
+        'requests',
+        'simplejson',
         'six',
         'zope.component',
         'zope.interface',
