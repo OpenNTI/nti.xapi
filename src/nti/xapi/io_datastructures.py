@@ -48,6 +48,8 @@ class MappingIO(ExternalizableInstanceDict):
 class XAPIBaseIO(InterfaceObjectIO):
 
     _ext_iface_upper_bound = IXAPIBase
+    _excluded_out_ivars_ = {}
+    _excluded_in_ivars_ = {}
 
     _ext_pop_none = True
 

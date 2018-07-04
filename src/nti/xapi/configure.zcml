@@ -20,6 +20,10 @@
 	     for=".interfaces.IExtensions"
 	     provides="nti.externalization.interfaces.IInternalObjectIO" />
 
+    <adapter factory=".language_map.LanguageMap"
+	     for="dict"
+	     provides=".interfaces.ILanguageMap" />
+    
     <adapter factory=".extensions.Extensions"
 	     for="dict"
 	     provides=".interfaces.IExtensions" />
@@ -39,5 +43,9 @@
      <adapter factory=".entities._group_factory"
 	     for="dict"
 	     provides=".interfaces.IGroup" />
+
+     <adapter factory=".verb._verb_factory"
+	     for="dict"
+	     provides=".interfaces.IVerb" />
 
 </configure>
