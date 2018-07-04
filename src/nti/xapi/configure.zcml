@@ -48,4 +48,12 @@
 	     for="dict"
 	     provides=".interfaces.IVerb" />
 
+     <adapter factory=".activity._activity_definition_factory"
+	     for="dict"
+	     provides=".interfaces.IActivityDefinition" />
+
+     <adapter factory=".activity._activity_factory"
+	     for="dict"
+	     provides=".interfaces.IActivity" />
+
 </configure>
