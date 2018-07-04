@@ -12,8 +12,6 @@ import six
 
 from zope import interface
 
-from nti.externalization.datastructures import ExternalizableInstanceDict
-
 from nti.xapi.interfaces import ILanguageMap
 
 from nti.xapi.io_datastructures import MappingIO
