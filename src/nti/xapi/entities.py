@@ -17,6 +17,7 @@ from nti.externalization.internalization import update_from_external_object
 from nti.schema.fieldproperty import createDirectFieldProperties
 
 from nti.schema.schema import SchemaConfigured
+from nti.schema.schema import schemadict
 
 from .interfaces import IAgentAccount
 from .interfaces import IAgent
@@ -54,6 +55,23 @@ class Agent(SchemaConfigured, IFIMixin):
     objectType = 'Agent'
 
     createFieldProperties(IAgent)
+
+def _is_ifientity(ext):
+    schema = schemadict(IIFIEntity)
+    for attr in schema:
+        if ext.get(attr, None) is not None:
+            return True
+    return False
+
+
+def _group_factory(ext):
+    factory = AnonymousGroup
+    if _is_ifientity(ext):
+        factory = IdentifiedGroup
+    group = factory()
+    update_from_external_object(group, ext)
+    return group
+    
 
 class GroupBase(object):
     

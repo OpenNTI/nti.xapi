@@ -32,8 +32,12 @@
 	     for="dict"
 	     provides=".interfaces.IAgent" />
 
-    <adapter factory=".entities._agent_factory"
+    <adapter factory=".entities._entity_factory"
 	     for="dict"
 	     provides=".interfaces.INamedEntity" />
+
+     <adapter factory=".entities._group_factory"
+	     for="dict"
+	     provides=".interfaces.IGroup" />
 
 </configure>

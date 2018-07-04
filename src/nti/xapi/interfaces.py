@@ -158,7 +158,7 @@ class IAnonymousGroup(IGroup):
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#description-3
     """
-    members = ListOrTuple(title=u'The members of this Group.',
+    member = ListOrTuple(title=u'The members of this Group.',
                           value_type=Object(IAgent),
                           default=[],
                           required=True)
@@ -170,7 +170,7 @@ class IIdentifiedGroup(IGroup, IIFIEntity):
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#description-3
     """
-    members = ListOrTuple(title=u'The members of this Group.',
+    member = ListOrTuple(title=u'The members of this Group.',
                           value_type=Object(IAgent),
                           required=False)
 

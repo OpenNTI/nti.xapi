@@ -8,10 +8,10 @@ from __future__ import absolute_import
 # pylint: disable=protected-access,too-many-public-methods
 
 from hamcrest import assert_that
-from hamcrest import has_entries
+from hamcrest import has_length
 from hamcrest import is_
-from hamcrest import instance_of
-from hamcrest import contains
+from hamcrest import none
+
 
 import unittest
 
@@ -27,6 +27,9 @@ from . import SharedConfiguringTestLayer
 
 from ..interfaces import IAgent
 from ..interfaces import IAgentAccount
+from ..interfaces import IGroup
+from ..interfaces import IIdentifiedGroup
+from ..interfaces import IAnonymousGroup
 from ..interfaces import INamedEntity
 
 from ..entities import Agent
@@ -170,3 +173,92 @@ class TestAgentIO(unittest.TestCase):
         agent = INamedEntity(self.basic_agent)
         assert_that(agent, verifiably_provides(IAgent))
         assert_that(to_external_object(agent), is_(self.basic_agent))
+
+        
+class TestGroup(unittest.TestCase):
+
+    layer = SharedConfiguringTestLayer
+
+    def setUp(self):
+
+        self.identified_group = {
+            "name": "Team PB",
+            "mbox": "mailto:teampb@example.com",
+            "member": [
+                {
+                    "name": "Andrew Downes",
+                    "account": {
+                        "homePage": "http://www.example.com",
+                        "name": "13936749"
+                    },
+                    "objectType": "Agent"
+                },
+                {
+                    "name": "Toby Nichols",
+                    "openid": "http://toby.openid.example.org/",
+                    "objectType": "Agent"
+                },
+                {
+                    "name": "Ena Hills",
+                    "mbox_sha1sum": "ebd31e95054c018b10727ccffd2ef2ec3a016ee9",
+                    "objectType": "Agent"
+                }
+            ],
+            "objectType": "Group"
+        }
+
+        self.anon_group = {
+	    "objectType" : "Group",
+	    "member": [
+		{
+		    "account": {
+			"homePage":"http://example.com/xAPI/OAuth/Token",
+			"name":"oauth_consumer_x75db"
+		    },
+                    "objectType": "Agent"
+		},
+		{ 
+		    "mbox":"mailto:bob@example.com",
+                    "objectType": "Agent"
+		}
+	    ]
+        }
+
+    def test_as_group(self):
+        ig = IGroup(self.identified_group)
+        assert_that(ig, verifiably_provides(IIdentifiedGroup))
+
+        ag = IGroup(self.anon_group)
+        assert_that(ag, verifiably_provides(IAnonymousGroup))
+
+    def test_as_entity(self):
+        ig = INamedEntity(self.identified_group)
+        assert_that(ig, verifiably_provides(IIdentifiedGroup))
+
+        ag = INamedEntity(self.anon_group)
+        assert_that(ag, verifiably_provides(IAnonymousGroup))
+
+    def test_identified_io(self):
+        ig = INamedEntity(self.identified_group)
+        assert_that(to_external_object(ig), is_(self.identified_group))
+
+        assert_that(ig.name, is_(self.identified_group['name']))
+        assert_that(ig.mbox, is_(self.identified_group['mbox']))
+        assert_that(ig.member, has_length(3))
+
+        for member in ig.member:
+            assert_that(member, verifiably_provides(IAgent))
+
+        assert_that(ig.member[0].name, is_('Andrew Downes'))
+
+    def test_anonymous_io(self):
+        ag = INamedEntity(self.anon_group)
+        assert_that(to_external_object(ag), is_(self.anon_group))
+
+        assert_that(ag.name, is_(none()))
+        assert_that(ag.member, has_length(2))
+
+        for member in ag.member:
+            assert_that(member, verifiably_provides(IAgent))
+
+        assert_that(ag.member[0].account.name, is_('oauth_consumer_x75db'))
