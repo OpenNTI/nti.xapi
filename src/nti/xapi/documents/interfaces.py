@@ -16,7 +16,9 @@ from nti.schema.field import Object
 from nti.schema.field import ValidBytes
 from nti.schema.field import ValidDatetime
 from nti.schema.field import DecodingValidTextLine as ValidTextLine
-from nti.xapi.interfaces import IAgent, IActivity
+
+from nti.xapi.interfaces import IAgent
+from nti.xapi.interfaces import IActivity
 
 
 class IDocument(interface.Interface):
@@ -43,7 +45,7 @@ class IStateDocument(IDocument):
     """
     StateDocument interface
     """
- 
+
     agent = Object(IAgent,
                    title=u'The document agent',
                    required=False)
