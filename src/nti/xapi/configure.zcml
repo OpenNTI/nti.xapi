@@ -9,7 +9,7 @@
     <include package="nti.externalization" />
 
     <adapter factory=".io_datastructures.XAPIBaseIO"
-	     for=".interfaces.IAbout"
+	     for=".interfaces.IXAPIBase"
 	     provides="nti.externalization.interfaces.IInternalObjectIO" />
 
     <adapter factory=".language_map.LanguageMapIO"
@@ -23,5 +23,17 @@
     <adapter factory=".extensions.Extensions"
 	     for="dict"
 	     provides=".interfaces.IExtensions" />
+
+    <adapter factory=".entities._account_factory"
+	     for="dict"
+	     provides=".interfaces.IAgentAccount" />
+
+    <adapter factory=".entities._agent_factory"
+	     for="dict"
+	     provides=".interfaces.IAgent" />
+
+    <adapter factory=".entities._agent_factory"
+	     for="dict"
+	     provides=".interfaces.INamedEntity" />
 
 </configure>

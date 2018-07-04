@@ -94,7 +94,8 @@ class IAgentAccount(IXAPIBase):
 
     name = ValidTextLine(title=u'account name',
                          description=u'The unique id or name used to log in to this account',
-                         required=True)
+                         required=True,
+                         min_length=1)
 
     homePage = ValidURI(title=u'The canonical home page for the account',
                         description=u'The canonical home page for the system the account is on. This is based on FOAFs accountServiceHomePage.',
@@ -112,7 +113,8 @@ class IIFIEntity(interface.Interface):
                     required=False)
 
     mbox_sha1sum = ValidTextLine(title=u'The hex-encoded SHA1 hash of a mailto IRI',
-                                 required=False)
+                                 required=False,
+                                 min_length=1)
 
     openid = ValidURI(title=u'An openID that uniquely identifies the Agent.',
                       required=False)

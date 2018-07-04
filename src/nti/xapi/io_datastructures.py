@@ -49,7 +49,17 @@ class XAPIBaseIO(InterfaceObjectIO):
 
     _ext_iface_upper_bound = IXAPIBase
 
+    _ext_pop_none = True
+
     def toExternalObject(self, *args, **kwargs):  # pylint: disable: arguments-differ
         ext = super(XAPIBaseIO, self).toExternalObject(*args, **kwargs)
         ext.pop(CLASS, None)
+        object_type = getattr(self._ext_self, 'objectType', None)
+        if object_type is not None:
+            ext['objectType'] = object_type
+
+        if self._ext_pop_none:
+            for k in ext.keys():
+                if ext[k] is None:
+                    ext.pop(k)
         return ext
