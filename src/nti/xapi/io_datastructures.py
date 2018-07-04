@@ -8,10 +8,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from nti.externalization.datastructures import ExternalizableInstanceDict
 from nti.externalization.datastructures import InterfaceObjectIO
+from nti.externalization.datastructures import ExternalizableInstanceDict
 
-from .interfaces import IXAPIBase
+from nti.externalization.interfaces import StandardExternalFields
+
+from nti.xapi.interfaces import IXAPIBase
+
+CLASS = StandardExternalFields.CLASS
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -45,7 +49,7 @@ class XAPIBaseIO(InterfaceObjectIO):
 
     _ext_iface_upper_bound = IXAPIBase
 
-    def toExternalObject(self, *args, **kwargs):
+    def toExternalObject(self, *args, **kwargs):  # pylint: disable: arguments-differ
         ext = super(XAPIBaseIO, self).toExternalObject(*args, **kwargs)
-        ext.pop('Class', None)
+        ext.pop(CLASS, None)
         return ext
