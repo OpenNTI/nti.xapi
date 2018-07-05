@@ -62,7 +62,7 @@ class XAPIBaseIO(InterfaceObjectIO):
             ext['objectType'] = object_type
         # pop empty values
         if self._ext_pop_none:
-            for k in ext.keys():
+            for k in list(ext.keys()):
                 if ext[k] is None:
                     ext.pop(k)
         return ext
