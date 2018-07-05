@@ -52,6 +52,7 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
+        'isodate',
         'nti.externalization',
         'nti.schema',
         'requests',
