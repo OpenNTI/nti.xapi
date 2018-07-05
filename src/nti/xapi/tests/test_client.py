@@ -243,7 +243,7 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(response)
         result = client.get_state(activity, agent, 'uuid')
         assert_that(result, is_(none()))
-        
+
     @fudge.patch('requests.Session.put',
                  'nti.xapi.client.to_external_object')
     def test_save_state(self, mock_ss, mock_ex):
@@ -266,3 +266,40 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(response)
         result = client.save_state(doc)
         assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.delete',
+                 'nti.xapi.client.to_external_object')
+    def test_delete_state(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        doc = StateDocument(id="1234",
+                            content=b"bytes",
+                            activity=Activity(id="act"),
+                            agent=Agent(),
+                            etag="xyz")
+
+        # success
+        response = fudge.Fake().has_attr(status_code=204)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.delete_state(doc)
+        assert_that(result, is_(True))
+
+        response = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.delete_state(doc)
+        assert_that(result, is_(False))
+
+    @fudge.patch('requests.Session.delete',
+                 'nti.xapi.client.to_external_object')
+    def test_clear_state(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        agent = Agent()
+        activity = Activity(id="act")
+        # success
+        response = fudge.Fake().has_attr(status_code=204)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.clear_state(activity, agent, "xyz")
+        assert_that(result, is_(True))

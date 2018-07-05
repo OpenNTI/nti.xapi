@@ -73,7 +73,7 @@ class LRSClient(object):
 
     # about
 
-    def about(self, modeled=True):
+    def about(self):
         """
         Gets about response from LRS
 
@@ -87,7 +87,7 @@ class LRSClient(object):
             response = session.get(session, url, auth=self.auth)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_about(data) if modeled else json.loads(data)
+                result = self.read_about(data)
             else:
                 logger.error("Invalid server response [%s] while getting about.",
                              response.status_code)
@@ -155,7 +155,7 @@ class LRSClient(object):
                              response.status_code)
             return statements
 
-    def get_statement(self, statement_id, modeled=True):
+    def get_statement(self, statement_id):
         """
         Retrieve a statement from the server from its id
 
@@ -173,14 +173,14 @@ class LRSClient(object):
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement(data) if modeled else json.loads(data)
+                result = self.read_statement(data)
             else:
                 logger.error("Invalid server response [%s] while getting statement %s",
                              response.status_code, statement_id)
             return result
     statement = retrieve_statement = get_statement
 
-    def get_voided_statement(self, statement_id, modeled=True):
+    def get_voided_statement(self, statement_id):
         """
         Retrieve a voided statement from the server from its id
 
@@ -198,14 +198,14 @@ class LRSClient(object):
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement(data) if modeled else json.loads(data)
+                result = self.read_statement(data)
             else:
                 logger.error("Invalid server response [%s] while getting voided statement %s",
                              response.status_code, statement_id)
             return result
     retrieve_voided_statement = get_voided_statement
 
-    def query_statements(self, query, modeled=True):
+    def query_statements(self, query):
         """
         Query the LRS for statements with specified parameters
 
@@ -270,13 +270,13 @@ class LRSClient(object):
             response = session.get(url, auth=self.auth, params=query)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement_result(data) if modeled else json.loads(data)
+                result = self.read_statement_result(data)
             else:
                 logger.error("Invalid server response [%s] while querying statements",
                              response.status_code)
             return result
 
-    def more_statements(self, more_url, modeled=True):
+    def more_statements(self, more_url):
         """
         Query the LRS for more statements
 
@@ -294,7 +294,7 @@ class LRSClient(object):
             response = session.get(more_url, auth=self.auth)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement_result(data) if modeled else json.loads(data)
+                result = self.read_statement_result(data)
             else:
                 logger.error("Invalid server response [%s] while getting more statements",
                              response.status_code)
@@ -427,7 +427,7 @@ class LRSClient(object):
         }
         if state.etag is not None:
             headers["If-Match"] = state.etag
-            
+
         result = state
         with self.session() as session:
             url = urllib_parse.urljoin(self.endpoint, "activities/state")
@@ -438,7 +438,87 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while saving state %s",
                              response.status_code, state.id)
                 result = None
-        return result 
+        return result
+
+    def _delete_state(self, activity, agent, state_id=None, registration=None, etag=None):
+        """
+        Private method to delete a specified state from the LRS
+
+        :param activity: Activity object of state to be deleted
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of state to be deleted
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param state_id: UUID of state to be deleted
+        :type state_id: str
+        :param registration: registration UUID of state to be deleted
+        :type registration: str
+        :param etag: etag of state to be deleted
+        :type etag: str
+        :return: Deleted state
+        """
+        agent = IAgent(agent, agent)
+        activity = IActivity(activity, activity)
+
+        # set pararms
+        # pylint: disable=no-member
+        params = {
+            "activityId": activity.id,
+            "agent": json.dumps(to_external_object(agent))
+        }
+        if state_id is not None:
+            params["stateId"] = state_id
+        if registration is not None:
+            params["registration"] = registration
+
+        # headers
+        headers = {"If-Match": etag} if etag else None
+
+        result = True
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/state")
+            # pylint: disable=too-many-function-args
+            response = session.delete(url, auth=self.auth, params=params,
+                                      headers=headers)
+            if not (200 <= response.status_code < 300):
+                logger.error("Invalid server response [%s] while deleting state %s",
+                             response.status_code, state_id)
+                result = False
+        return result
+
+    def delete_state(self, state):
+        """
+        Delete a specified state from the LRS
+
+        :param state: State document to be deleted
+        :type state: :class:`nti.xapi.documents.interfaces.IStateDocument`
+        :return: True if the state was deleted
+        :rtype: bool
+        """
+        return self._delete_state(
+            activity=state.activity,
+            agent=state.agent,
+            state_id=state.id,
+            etag=state.etag
+        )
+
+    def clear_state(self, activity, agent, registration=None):
+        """
+        Clear state(s) with specified activity and agent
+
+        :param activity: Activity object of state(s) to be deleted
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of state(s) to be deleted
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param registration: registration UUID of state(s) to be deleted
+        :type registration: str
+        :return: True if the state was cleared
+        :rtype: bool
+        """
+        return self._delete_state(
+            activity=activity,
+            agent=agent,
+            registration=registration
+        )
 
     # misc
 
