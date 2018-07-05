@@ -24,9 +24,11 @@ from nti.externalization.internalization import update_from_external_object
 from nti.xapi.about import About
 
 from nti.xapi.documents.document import StateDocument
+from nti.xapi.documents.document import AgentProfileDocument
 from nti.xapi.documents.document import ActivityProfileDocument
 
 from nti.xapi.documents.interfaces import IStateDocument
+from nti.xapi.documents.interfaces import IAgentProfileDocument
 from nti.xapi.documents.interfaces import IActivityProfileDocument
 
 from nti.xapi.interfaces import IAgent
@@ -157,7 +159,7 @@ class LRSClient(object):
                              response.status_code)
             return statements
 
-    def get_statement(self, statement_id):
+    def retrieve_statement(self, statement_id):
         """
         Retrieve a statement from the server from its id
 
@@ -180,9 +182,9 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while getting statement %s",
                              response.status_code, statement_id)
             return result
-    statement = retrieve_statement = get_statement
+    statement = get_statement = retrieve_statement
 
-    def get_voided_statement(self, statement_id):
+    def retrieve_voided_statement(self, statement_id):
         """
         Retrieve a voided statement from the server from its id
 
@@ -205,7 +207,7 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while getting voided statement %s",
                              response.status_code, statement_id)
             return result
-    retrieve_voided_statement = get_voided_statement
+    get_voided_statement = retrieve_voided_statement
 
     def query_statements(self, query):
         """
@@ -289,7 +291,7 @@ class LRSClient(object):
         """
         result = None
         more_url = getattr(more_url, "more", more_url)
-        more_url = urllib_parse.urljoin(self.get_endpoint_server_root(),
+        more_url = urllib_parse.urljoin(self._get_endpoint_server_root(),
                                         more_url)
         with self.session() as session:
             # pylint: disable=too-many-function-args
@@ -312,7 +314,7 @@ class LRSClient(object):
 
     # states
 
-    def get_state_ids(self, activity, agent, registration=None, since=None):
+    def retrieve_state_ids(self, activity, agent, registration=None, since=None):
         """
         Retrieve state id's from the LRS with the provided parameters
 
@@ -329,7 +331,7 @@ class LRSClient(object):
         agent = IAgent(agent, agent)
         activity = IActivity(activity, activity)
 
-        # set pararms
+        # set params
         params = {
             "activityId": activity.id,
             "agent": json.dumps(to_external_object(agent))
@@ -352,9 +354,9 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while getting state ids",
                              response.status_code)
             return result
-    retrieve_state_ids = get_state_ids
+    get_state_ids = retrieve_state_ids
 
-    def get_state(self, activity, agent, state_id, registration=None):
+    def retrieve_state(self, activity, agent, state_id, registration=None):
         """
         Retrieve state from LRS with the provided parameters
 
@@ -372,7 +374,7 @@ class LRSClient(object):
         agent = IAgent(agent, agent)
         activity = IActivity(activity, activity)
 
-        # set pararms
+        # set params
         params = {
             'stateId': state_id,
             "activityId": activity.id,
@@ -393,19 +395,13 @@ class LRSClient(object):
                                        content=data,
                                        activity=activity,
                                        agent=agent)
-                headers = response.headers
-                if headers.get("lastModified", None) is not None:
-                    result.timestamp = IDateTime(headers['lastModified'])
-                if headers.get("contentType", None) is not None:
-                    result.content_type = headers["contentType"]
-                if headers.get("etag", None) is not None:
-                    result.content_type = headers["etag"]
+                self._set_document_headers(result, response.headers)
             elif response.status_code != 404:
                 logger.error("Invalid server response [%s] while getting state %s",
                              response.status_code, state_id)
 
             return result
-    retrieve_state = get_state
+    get_state = retrieve_state
 
     def save_state(self, state):
         """
@@ -417,7 +413,8 @@ class LRSClient(object):
         :rtype: :class:`tincan.lrs_response.LRSResponse`
         """
         state = IStateDocument(state, state)
-        # set pararms
+
+        # set params
         # pylint: disable=no-member
         params = {
             'stateId': state.id,
@@ -461,7 +458,7 @@ class LRSClient(object):
         agent = IAgent(agent, agent)
         activity = IActivity(activity, activity)
 
-        # set pararms
+        # set params
         # pylint: disable=no-member
         params = {
             "activityId": activity.id,
@@ -522,7 +519,7 @@ class LRSClient(object):
             registration=registration
         )
 
-    # profiles
+    # activity profiles
 
     def retrieve_activity_profile_ids(self, activity, since=None):
         """
@@ -536,7 +533,7 @@ class LRSClient(object):
         """
         activity = IActivity(activity, activity)
 
-        # set pararms
+        # set params
         # pylint: disable=no-member
         params = {
             "activityId": activity.id,
@@ -556,6 +553,7 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while activity profile ids",
                              response.status_code)
         return result
+    get_activity_profile_ids = retrieve_activity_profile_ids
 
     def retrieve_activity_profile(self, activity, profile_id):
         """
@@ -569,7 +567,8 @@ class LRSClient(object):
         :rtype: :class:`tincan.lrs_response.LRSResponse`
         """
         activity = IActivity(activity, activity)
-        # set pararms
+
+        # set params
         # pylint: disable=no-member
         params = {
             "profileId": profile_id,
@@ -587,19 +586,14 @@ class LRSClient(object):
                 result = ActivityProfileDocument(id=profile_id,
                                                  content=data,
                                                  activity=activity)
-                headers = response.headers
-                if headers.get("lastModified", None) is not None:
-                    result.timestamp = IDateTime(headers['lastModified'])
-                if headers.get("contentType", None) is not None:
-                    result.content_type = headers["contentType"]
-                if headers.get("etag", None) is not None:
-                    result.content_type = headers["etag"]
+                self._set_document_headers(result, response.headers)
             elif response.status_code != 404:
                 logger.error("Invalid server response [%s] while getting activity profile %s",
                              response.status_code, profile_id)
 
             return result
-
+    get_activity_profile = retrieve_activity_profile
+    
     def save_activity_profile(self, profile):
         """
         Save an activity profile doc to the LRS
@@ -611,7 +605,7 @@ class LRSClient(object):
         """
         profile = IActivityProfileDocument(profile, profile)
 
-        # set pararms
+        # set params
         # pylint: disable=no-member
         params = {
             "profileId": profile.id,
@@ -646,7 +640,7 @@ class LRSClient(object):
         """
         profile = IActivityProfileDocument(profile, profile)
 
-        # set pararms
+        # set params
         # pylint: disable=no-member
         params = {
             "profileId": profile.id,
@@ -668,9 +662,93 @@ class LRSClient(object):
                 result = False
         return result
 
+    # agent profiles
+    
+    def retrieve_agent_profile_ids(self, agent, since=None):
+        """
+        Retrieve agent profile id(s) with the specified parameters
+
+        :param agent: Agent object of desired agent profiles
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param since: Retrieve agent profile id's since this time
+        :type since: str
+        :return: List of retrieved agent profile ids
+        """
+        agent = IAgent(agent, agent)
+        
+        # set params
+        params = {
+            "agent": json.dumps(to_external_object(agent))
+        }
+        if since is not None:
+            params["since"] = to_external_object(since)
+
+        # query
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=params)
+            if response.ok:
+                data = self.prepare_json_text(response.text)
+                result = json.loads(data)
+            else:
+                logger.error("Invalid server response [%s] while getting agent profile ids",
+                             response.status_code)
+            return result
+    get_agent_profile_ids = retrieve_agent_profile_ids
+    
+    def retrieve_agent_profile(self, agent, profile_id):
+        """
+        Retrieve agent profile with the specified parameters
+
+        :param agent: Agent object of the desired agent profile
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param profile_id: UUID of the desired agent profile
+        :type profile_id: str
+        :return: An agent profile document
+        :rtype: :class:`nti.xapi.interfaces.IAgentProfileDocument`
+        """
+        agent = IAgent(agent, agent)
+
+        # set params
+        # pylint: disable=no-member
+        params = {
+            "profileId": profile_id,
+            "agent": json.dumps(to_external_object(agent))
+        }
+
+        # query
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=params)
+            if response.ok:
+                data = response.content
+                result = AgentProfileDocument(id=profile_id,
+                                              content=data,
+                                              agent=agent)
+                self._set_document_headers(result, response.headers)
+            elif response.status_code != 404:
+                logger.error("Invalid server response [%s] while getting agent profile %s",
+                             response.status_code, profile_id)
+
+            return result
+    get_agent_profile = retrieve_agent_profile
+    
     # misc
 
-    def get_endpoint_server_root(self):
+    def _set_document_headers(self, doc, headers):
+        if headers.get("lastModified", None) is not None:
+            doc.timestamp = IDateTime(headers['lastModified'])
+        if headers.get("contentType", None) is not None:
+            doc.content_type = headers["contentType"]
+        if headers.get("etag", None) is not None:
+            doc.etag = headers["etag"]
+        return doc
+
+    def _get_endpoint_server_root(self):
         """
         Parses RemoteLRS object's endpoint and returns its root
 
