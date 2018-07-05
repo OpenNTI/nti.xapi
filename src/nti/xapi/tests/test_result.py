@@ -10,6 +10,7 @@ from __future__ import absolute_import
 from hamcrest import assert_that
 from hamcrest import is_
 
+import isodate
 
 import unittest
 
@@ -60,7 +61,7 @@ class TestScore(unittest.TestCase):
         score = Score()
         update_from_external_object(score, self.data)
 
-        self.validate_score(self.score)
+        self.validate_score(score)
 
 class TestResult(TestScore):
 
@@ -82,17 +83,28 @@ class TestResult(TestScore):
 
     def validate_result(self, result):
         assert_that(result, verifiably_provides(IResult))
+        assert_that(result.success, is_(True))
+        assert_that(result.completion, is_(True))
+        assert_that(result.duration, is_(isodate.parse_duration('PT1234S')))
 
         self.validate_score(result.score)
-                
+
     def test_creation(self):
         self.validate_result(self.result)
 
     def test_externalization(self):
-        assert_that(to_external_object(self.result), is_(self.data))
+        expected = dict(self.data)
+        expected_duration = expected.pop('duration')
+
+        external = to_external_object(self.result)
+        external_duration = external.pop('duration')
+
+        assert_that(isodate.parse_duration(external_duration), is_(isodate.parse_duration(expected_duration)))
+    
+        assert_that(external, is_(expected))
 
     def test_internalization(self):
         result = Result()
-        update_from_external_object(result, dict(self.data))
+        update_from_external_object(result, self.data)
 
-        self.validate_result(self.result)
+        self.validate_result(result)
