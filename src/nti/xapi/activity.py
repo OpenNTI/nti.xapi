@@ -1,23 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
-logger = __import__('logging').getLogger(__name__)
-
+from zope import component
 from zope import interface
 
 from nti.externalization.internalization import update_from_external_object
 
-from nti.schema.schema import SchemaConfigured
-
 from nti.schema.fieldproperty import createDirectFieldProperties
 
-from .interfaces import IActivity
-from .interfaces import IActivityDefinition
+from nti.schema.schema import SchemaConfigured
+
+from nti.xapi.interfaces import IActivity
+from nti.xapi.interfaces import IActivityDefinition
+
+logger = __import__('logging').getLogger(__name__)
 
 
+@component.adapter(dict)
+@interface.implementer(IActivityDefinition)
 def _activity_definition_factory(ext):
     activity_def = ActivityDefinition()
     update_from_external_object(activity_def, ext)
@@ -26,18 +33,19 @@ def _activity_definition_factory(ext):
 
 @interface.implementer(IActivityDefinition)
 class ActivityDefinition(SchemaConfigured):
-
     createDirectFieldProperties(IActivityDefinition)
 
 
+@component.adapter(dict)
+@interface.implementer(IActivity)
 def _activity_factory(ext):
     activity = Activity()
     update_from_external_object(activity, ext)
     return activity
 
+
 @interface.implementer(IActivity)
 class Activity(SchemaConfigured):
+    createDirectFieldProperties(IActivity)
 
     objectType = 'Activity'
-
-    createDirectFieldProperties(IActivity)
