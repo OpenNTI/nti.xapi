@@ -523,7 +523,7 @@ class LRSClient(object):
         )
 
     # profiles
-    
+
     def retrieve_activity_profile_ids(self, activity, since=None):
         """
         Retrieve activity profile id(s) with the specified parameters
@@ -535,7 +535,7 @@ class LRSClient(object):
         :return: List of retrieved activity profile ids
         """
         activity = IActivity(activity, activity)
-        
+
         # set pararms
         # pylint: disable=no-member
         params = {
@@ -543,7 +543,7 @@ class LRSClient(object):
         }
         if since is not None:
             params["since"] = since
-         
+
         result = None
         with self.session() as session:
             url = urllib_parse.urljoin(self.endpoint, "activities/profile")
@@ -633,6 +633,39 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while saving profile %s",
                              response.status_code, profile.id)
                 result = None
+        return result
+
+    def delete_activity_profile(self, profile):
+        """
+        Delete activity profile doc from LRS
+
+        :param profile: Activity profile document to be deleted
+        :type profile: :class:`nti.xapi.interfaces.IActivityProfileDocument`
+        :return: True if object was deleted
+        :rtype: bool
+        """
+        profile = IActivityProfileDocument(profile, profile)
+
+        # set pararms
+        # pylint: disable=no-member
+        params = {
+            "profileId": profile.id,
+            "activityId": profile.activity.id
+        }
+
+        # headers
+        headers = {"If-Match": profile.etag} if profile.etag else None
+
+        result = True
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            # pylint: disable=too-many-function-args
+            response = session.delete(url, auth=self.auth, params=params,
+                                      headers=headers)
+            if not (200 <= response.status_code < 300):
+                logger.error("Invalid server response [%s] while deleting activity profile %s",
+                             response.status_code, profile.id)
+                result = False
         return result
 
     # misc
