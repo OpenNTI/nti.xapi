@@ -56,10 +56,11 @@ class XAPIBaseIO(InterfaceObjectIO):
     def toExternalObject(self, *args, **kwargs):  # pylint: disable: arguments-differ
         ext = super(XAPIBaseIO, self).toExternalObject(*args, **kwargs)
         ext.pop(CLASS, None)
+        # set object type
         object_type = getattr(self._ext_self, 'objectType', None)
         if object_type is not None:
             ext['objectType'] = object_type
-
+        # pop empty values
         if self._ext_pop_none:
             for k in ext.keys():
                 if ext[k] is None:

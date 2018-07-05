@@ -542,7 +542,7 @@ class IStatement(IStatementBase):
                        required=False)
 
 
-class IStatementList(interface.Interface):
+class IStatementList(IXAPIBase):
 
     statements = ListOrTuple(title=u'statements',
                              description=u'The Statements',

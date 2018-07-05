@@ -1,17 +1,41 @@
 {
-	"statements": [{
-	    "attachments": [
-	        {"usage_type": "test"}
-	    ],
-	    "object": {
-	        "object_type": "Agent",
-	        "name": "test"
-	    },
-	    "authority": {"name": "test"},
-	    "verb": {"id": "test"},
-	    "actor": {"name": "test"},
-	    "context": {"registration": "016699c6-d600-48a7-96ab-86187498f16f"},
-	    "id": "016699c6-d600-48a7-96ab-86187498f16f"
-	}],
-	"more":"more/1234"
+    "statements": [
+        {
+            "attachments": [
+                {
+                    "sha2": "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634",
+                    "contentType": "application/octet-stream",
+                    "description": {"en-US": "A test signature"},
+                    "usageType": "http://adlnet.gov/expapi/attachments/signature",
+                    "length": 4235,
+                    "display": {"en-US": "Signature"}
+                }
+            ],
+            "timestamp": "2015-12-18T12:17:00+00:00",
+            "object": {
+                "definition": {
+                    "name": {"en-US": "simple CBT course"},
+                    "description": {"en-US": "A fictitious example CBT course."}
+                },
+                "id": "http://example.adlnet.gov/xapi/example/simpleCBT"
+            },
+            "actor": {
+                "mbox": "mailto:example.learner@adlnet.gov",
+                "name": "Example Learner",
+                "objectType": "Agent"
+            },
+            "verb": {
+                "id": "http://adlnet.gov/expapi/verbs/attempted",
+                "display": {"en-US": "attempted"}
+            },
+            "result": {
+                "completion": true,
+                "duration": "PT1234S",
+                "score": {"scaled": 0.95},
+                "success": true
+            },
+            "id": "7ccd3322-e1a5-411a-a67d-6a735c76f119"
+        }
+    ],
+    "more": "more/1234"
 }
