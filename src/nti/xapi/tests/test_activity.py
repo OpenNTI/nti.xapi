@@ -81,7 +81,50 @@ class TestActivityDefinition(unittest.TestCase):
         update_from_external_object(ad, self.data)
 
         self.validate_ad(self.ad)
-        
 
 
+class TestActivity(TestActivityDefinition):
 
+    layer = SharedConfiguringTestLayer
+
+    def setUp(self):
+
+        self.data = {
+            "id": "http://www.example.com/meetings/occurances/34534",
+            "definition": {
+                "extensions": {
+                    "http://example.com/profiles/meetings/activitydefinitionextensions/room": {"name": "Kilby", "id" : "http://example.com/rooms/342"}
+                },
+                "name": {
+                    "en-GB": "example meeting",
+                    "en-US": "example meeting"
+                },
+                "description": {
+                    "en-GB": "An example meeting that happened on a specific occasion with certain people present.",
+                    "en-US": "An example meeting that happened on a specific occasion with certain people present."
+                },
+                "type": "http://adlnet.gov/expapi/activities/meeting",
+                "moreInfo": "http://virtualmeeting.example.com/345256"
+            },
+            "objectType": "Activity"
+        }
+
+        self.activity = IActivity(self.data)
+
+    def validate_activity(self, activity):
+        assert_that(activity, verifiably_provides(IActivity))
+        assert_that(activity.id, is_('http://www.example.com/meetings/occurances/34534'))
+        assert_that(activity.objectType, is_('Activity'))
+        self.validate_ad(activity.definition)
+
+    def test_creation(self):
+        self.validate_activity(self.activity)
+
+    def test_externalization(self):
+        assert_that(to_external_object(self.activity), is_(self.data))
+
+    def test_internalization(self):
+        activity = Activity()
+        update_from_external_object(activity, self.data)
+
+        self.validate_activity(self.activity)
