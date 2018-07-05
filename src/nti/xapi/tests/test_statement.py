@@ -228,5 +228,6 @@ class TestStatementResult(unittest.TestCase):
     def test_result(self):
         result = IStatementResult(self.data, None)
         assert_that(result, is_not(none()))
+        assert_that(list(result), has_length(1))
         assert_that(result, has_property('more', "more/1234"))
         assert_that(result, has_property('statements', has_length(1)))
