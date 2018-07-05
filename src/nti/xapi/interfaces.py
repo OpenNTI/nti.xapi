@@ -441,8 +441,7 @@ class ISubStatement(IStatementBase):
 
     # Redefine object to the variant we expect
     object = Variant((Object(INamedEntity),
-                      Object(IActivity),
-                      Object(IStatementRef)),
+                      Object(IActivity)),
                      title=u'The thing that was acted on.',
                      required=True)
 

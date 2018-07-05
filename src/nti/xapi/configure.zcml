@@ -76,4 +76,19 @@
 	     for=".interfaces.IResult"
 	     provides="nti.externalization.interfaces.IInternalObjectIO" />
 
+     <adapter factory=".statement._statement_ref_factory"
+	     for="dict"
+	     provides=".interfaces.IStatementRef" />
+
+     <adapter factory=".statement._sub_statement_factory"
+	     for="dict"
+	     provides=".interfaces.ISubStatement" />
+
+     <adapter factory=".statement._statement_factory"
+	     for="dict"
+	     provides=".interfaces.IStatement" />
+
+     <adapter factory=".statement.StatementIO"
+	     for=".interfaces.IStatementBase"
+	     provides="nti.externalization.interfaces.IInternalObjectIO" />
 </configure>
