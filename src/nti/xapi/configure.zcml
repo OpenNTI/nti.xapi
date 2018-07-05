@@ -64,4 +64,16 @@
 	     for="dict"
 	     provides=".interfaces.IContext" />
 
+     <adapter factory=".result._score_factory"
+	     for="dict"
+	     provides=".interfaces.IScore" />
+
+     <adapter factory=".result._result_factory"
+	     for="dict"
+	     provides=".interfaces.IResult" />
+
+     <adapter factory=".result.ResultIO"
+	     for=".interfaces.IResult"
+	     provides="nti.externalization.interfaces.IInternalObjectIO" />
+
 </configure>
