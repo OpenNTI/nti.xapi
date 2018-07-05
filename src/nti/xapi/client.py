@@ -35,7 +35,7 @@ from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import Version
 from nti.xapi.interfaces import IActivity
 from nti.xapi.interfaces import IStatement
-from nti.xapi.interfaces import IStatementList
+from nti.xapi.interfaces import IStatementResult
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -142,7 +142,6 @@ class LRSClient(object):
         :return: The saved list of statements
         :rtype: :class:`nti.xapi.interfaces.IStatementList`
         """
-        statements = IStatementList(statements, statements)
         with self.session() as session:
             url = urllib_parse.urljoin(self.endpoint, "statements")
             payload = to_external_object(statements)
@@ -306,11 +305,11 @@ class LRSClient(object):
 
     def read_statement(self, data):
         data = json.loads(data, "utf-8")
-        return data
+        return IStatement(data)
 
     def read_statement_result(self, data):
         data = json.loads(data, "utf-8")
-        return data
+        return IStatementResult(data)
 
     # states
 
