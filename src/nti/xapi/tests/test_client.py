@@ -79,6 +79,8 @@ class TestClient(unittest.TestCase):
                             "data", "statement_result.json")
         return path
 
+    # statements
+
     @fudge.patch('requests.Session.get')
     def test_get_statement(self, mock_ss):
         with codecs.open(self.statement_file, "r", "UTF-8") as fp:
@@ -135,6 +137,7 @@ class TestClient(unittest.TestCase):
         result = client.save_statement(statement)
         assert_that(result, is_not(none()))
 
+        # failed
         data = fudge.Fake().has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.save_statement(statement)
@@ -156,6 +159,7 @@ class TestClient(unittest.TestCase):
         result = client.save_statements([statement])
         assert_that(result, is_not(none()))
 
+        # failed
         data = fudge.Fake().has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.save_statements([statement])
@@ -177,6 +181,7 @@ class TestClient(unittest.TestCase):
         result = client.query_statements(query)
         assert_that(result, is_not(none()))
 
+        # failed
         data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.query_statements(query)
@@ -195,16 +200,20 @@ class TestClient(unittest.TestCase):
         result = client.more_statements("more/1234")
         assert_that(result, is_not(none()))
 
+        # failed
         data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.more_statements("more/1234")
         assert_that(result, is_(none()))
+
+    # states
 
     @fudge.patch('requests.Session.get',
                  'nti.xapi.client.to_external_object')
     def test_retrieve_state_ids(self, mock_ss, mock_ex):
         mock_ex.is_callable().returns('ext')
         activity = fudge.Fake().has_attr(id='yyy')
+
         # success
         data = fudge.Fake().has_attr(text=b'["aaa"]').has_attr(ok=True)
         mock_ss.is_callable().returns(data)
@@ -213,6 +222,7 @@ class TestClient(unittest.TestCase):
         result = client.retrieve_state_ids(activity, 1, "zzz", "from")
         assert_that(result, is_not(none()))
 
+        # failed
         data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(data)
         result = client.retrieve_state_ids(activity, 1, "zzz", "from")
@@ -239,6 +249,7 @@ class TestClient(unittest.TestCase):
         result = client.get_state(activity, agent, 'uuid', 'reg')
         assert_that(result, is_not(none()))
 
+        # failed
         response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(response)
         result = client.get_state(activity, agent, 'uuid')
@@ -262,6 +273,7 @@ class TestClient(unittest.TestCase):
         result = client.save_state(doc)
         assert_that(result, is_not(none()))
 
+        # failed
         response = fudge.Fake().has_attr(status_code=422)
         mock_ss.is_callable().returns(response)
         result = client.save_state(doc)
@@ -285,6 +297,7 @@ class TestClient(unittest.TestCase):
         result = client.delete_state(doc)
         assert_that(result, is_(True))
 
+        # failed
         response = fudge.Fake().has_attr(status_code=422)
         mock_ss.is_callable().returns(response)
         result = client.delete_state(doc)
@@ -300,6 +313,49 @@ class TestClient(unittest.TestCase):
         response = fudge.Fake().has_attr(status_code=204)
         mock_ss.is_callable().returns(response)
 
+        # failed
         client = self.get_client()
         result = client.clear_state(activity, agent, "xyz")
         assert_that(result, is_(True))
+
+    # profiles
+
+    @fudge.patch('requests.Session.get')
+    def test_retrieve_activity_profile_ids(self, mock_ss):
+        activity = Activity(id='yyy')
+        # success
+        data = fudge.Fake().has_attr(text=b'["aaa"]').has_attr(ok=True)
+        mock_ss.is_callable().returns(data)
+
+        client = self.get_client()
+        result = client.retrieve_activity_profile_ids(activity, "from")
+        assert_that(result, is_not(none()))
+
+        # failed
+        data = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
+        mock_ss.is_callable().returns(data)
+        result = client.retrieve_activity_profile_ids(activity, "from")
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.get')
+    def test_retrieve_activity_profile(self, mock_ss):
+        headers = {
+            'etag': 'xyz',
+            'contentType': 'msword',
+            'lastModified': datetime.now()
+        }
+        activity = Activity(id="myact")
+
+        # success
+        response = fudge.Fake().has_attr(content=b'bytes').has_attr(ok=True).has_attr(headers=headers)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.retrieve_activity_profile(activity, 'uuid')
+        assert_that(result, is_not(none()))
+
+        # failed
+        response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.retrieve_activity_profile(activity, 'uuid')
+        assert_that(result, is_(none()))

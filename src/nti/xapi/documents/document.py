@@ -18,6 +18,7 @@ from nti.schema.schema import SchemaConfigured
 
 from nti.xapi.documents.interfaces import IDocument
 from nti.xapi.documents.interfaces import IStateDocument
+from nti.xapi.documents.interfaces import IActivityProfileDocument
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -31,3 +32,8 @@ class Document(SchemaConfigured):
 @interface.implementer(IStateDocument)
 class StateDocument(Document):
     createDirectFieldProperties(IStateDocument)
+
+
+@interface.implementer(IActivityProfileDocument)
+class ActivityProfileDocument(Document):
+    createDirectFieldProperties(IActivityProfileDocument)

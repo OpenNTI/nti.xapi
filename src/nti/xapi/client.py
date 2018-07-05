@@ -24,6 +24,7 @@ from nti.externalization.internalization import update_from_external_object
 from nti.xapi.about import About
 
 from nti.xapi.documents.document import StateDocument
+from nti.xapi.documents.document import ActivityProfileDocument
 
 from nti.xapi.documents.interfaces import IStateDocument
 
@@ -519,6 +520,84 @@ class LRSClient(object):
             agent=agent,
             registration=registration
         )
+
+    # profiles
+    
+    def retrieve_activity_profile_ids(self, activity, since=None):
+        """
+        Retrieve activity profile id(s) with the specified parameters
+
+        :param activity: Activity object of desired activity profiles
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param since: Retrieve activity profile id's since this time
+        :type since: str 
+        :return: List of retrieved activity profile ids
+        """
+        activity = IActivity(activity, activity)
+        
+        # set pararms
+        # pylint: disable=no-member
+        params = {
+            "activityId": activity.id,
+        }
+        if since is not None:
+            params["since"] = since
+         
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=params)
+            if response.ok:
+                data = self.prepare_json_text(response.text)
+                result = json.loads(data)
+            else:
+                logger.error("Invalid server response [%s] while activity profile ids",
+                             response.status_code)
+        return result
+
+    def retrieve_activity_profile(self, activity, profile_id):
+        """
+        Retrieve activity profile with the specified parameters
+
+        :param activity: Activity object of the desired activity profile
+        :type activity: :class:`tincan.activity.Activity`
+        :param profile_id: UUID of the desired profile
+        :type profile_id: str | unicode
+        :return: LRS Response object with an activity profile doc as content
+        :rtype: :class:`tincan.lrs_response.LRSResponse`
+        """
+        activity = IActivity(activity, activity)
+        # set pararms
+        # pylint: disable=no-member
+        params = {
+            "profileId": profile_id,
+            "activityId": activity.id,
+        }
+
+        # query
+        result = None
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            # pylint: disable=too-many-function-args
+            response = session.get(url, auth=self.auth, params=params)
+            if response.ok:
+                data = response.content
+                result = ActivityProfileDocument(id=profile_id,
+                                                 content=data,
+                                                 activity=activity)
+                headers = response.headers
+                if headers.get("lastModified", None) is not None:
+                    result.timestamp = IDateTime(headers['lastModified'])
+                if headers.get("contentType", None) is not None:
+                    result.content_type = headers["contentType"]
+                if headers.get("etag", None) is not None:
+                    result.content_type = headers["etag"]
+            elif response.status_code != 404:
+                logger.error("Invalid server response [%s] while getting activity profile %s",
+                             response.status_code, profile_id)
+
+            return result
 
     # misc
 
