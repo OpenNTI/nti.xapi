@@ -561,3 +561,264 @@ class IStatementResult(IStatementList):
     more = ValidTextLine(title=u'more',
                          description=u'URL retrieve more statements',
                          required=False)
+
+
+class ILRSClient(interface.Interface):
+    """
+    LRS Client
+    """
+
+    # about
+
+    def about():
+        """
+        Gets about response from LRS
+
+        :return: The returned About object
+        :rtype: :class:`nti.xapi.interfaces.IAbout`
+        """
+
+    # statements
+
+    def save_statement(statement):
+        """
+        Save statement to LRS and update statement id if necessary
+
+        :param statement: Statement object to be saved
+        :type statement: :class:`nti.xapi.interfaces.IStatement`
+        :return: Tthe saved statement
+        :rtype: :class:`nti.xapi.interfaces.IStatement`
+        """
+
+    def save_statements(statements):
+        """
+        Save statements to LRS and update their statement id's
+
+        :param statements: A list of statement objects to be saved
+        :type statements: :class:`nti.xapi.interfaces.IStatementList`
+        :return: The saved list of statements
+        :rtype: :class:`nti.xapi.interfaces.IStatementList`
+        """
+
+    def retrieve_statement(statement_id):
+        """
+        Retrieve a statement from the server from its id
+
+        :param statement_id: The UUID of the desired statement
+        :type statement_id: str
+        :return: The retrieved statement
+        :rtype: :class:`nti.xapi.interfaces.IStatement`
+        """
+
+    def retrieve_voided_statement(statement_id):
+        """
+        Retrieve a voided statement from the server from its id
+
+        :param statement_id: The UUID of the desired voided statement
+        :type statement_id: str
+        :return: The retrieved voided statement
+        :rtype: :class:`nti.xapi.interfaces.IStatement`
+        """
+
+    def query_statements(query):
+        """
+        Query the LRS for statements with specified parameters
+
+        :param query: Dictionary of query parameters and their values
+        :type query: dict
+        :return: The returned StatementsResult object 
+        :rtype: :class:`nti.xapi.interfaces.IStatementResult`
+
+        .. note::
+           Optional query parameters are\n
+               **statementId:** (*str*) ID of the Statement to fetch
+               **voidedStatementId:** (*str*) ID of the voided Statement to fetch
+               **agent:** (*Agent* |*Group*) Filter to return Statements for which the
+               specified Agent or Group is the Actor
+               **verb:** (*Verb id IRI*) Filter to return Statements matching the verb id
+               **activity:** (*Activity id IRI*) Filter to return Statements for which the
+               specified Activity is the Object
+               **registration:** (*UUID*) Filter to return Statements matching the specified registration ID
+               **related_activities:** (*bool*) Include Statements for which the Object,
+               Context Activities or any Sub-Statement
+               properties match the specified Activity
+               **related_agents:** (*bool*) Include Statements for which the Actor, Object,
+               Authority, Instructor, Team, or any Sub-Statement properties match the specified Agent
+               **since:** (*datetime*) Filter to return Statements stored since the specified datetime
+               **until:** (*datetime*) Filter to return Statements stored at or before the specified datetime
+               **limit:** (*positive int*) Allow <limit> Statements to be returned. 0 indicates the
+               maximum supported by the LRS
+               **format:** (*str* {"ids"|"exact"|"canonical"}) Manipulates how the LRS handles
+               importing and returning the statements
+               **attachments:** (*bool*) If true, the LRS will use multipart responses and include
+               all attachment data per Statement returned.
+               Otherwise, application/json is used and no attachment information will be returned
+               **ascending:** (*bool*) If true, the LRS will return results in ascending order of
+               stored time (oldest first)
+        """
+
+    def more_statements(more_url):
+        """
+        Query the LRS for more statements
+
+        :param more_url: URL from a StatementsResult object used to retrieve more statements
+        :type more_url: str
+        :return: The returned StatementsResult object
+        :rtype: :class:`nti.xapi.interfaces.IStatementResult`
+        """
+
+    # states
+
+    def retrieve_state_ids(activity, agent, registration=None, since=None):
+        """
+        Retrieve state id's from the LRS with the provided parameters
+
+        :param activity: Activity object of desired states
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of desired states
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param registration: Registration UUID of desired states
+        :type registration: str
+        :param since: Retrieve state id's since this time
+        :type since: str
+        :return: The retrieved state id's
+        """
+
+    def retrieve_state(activity, agent, state_id, registration=None):
+        """
+        Retrieve state from LRS with the provided parameters
+
+        :param activity: Activity object of desired state
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of desired state
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param state_id: UUID of desired state
+        :type state_id: str
+        :param registration: registration UUID of desired state
+        :type registration: str 
+        :return: State document
+        :rtype: :class:`nti.xapi.document.interfaces.IStateDocument`
+        """
+
+    def save_state(state):
+        """
+        Save a state doc to the LRS
+
+        :param state: State document to be saved
+        :type state: :class:`nti.xapi.documents.interfaces.IStateDocument`
+        :return: State document
+        """
+
+    def delete_state(state):
+        """
+        Delete a specified state from the LRS
+
+        :param state: State document to be deleted
+        :type state: :class:`nti.xapi.documents.interfaces.IStateDocument`
+        :return: True if the state was deleted
+        :rtype: bool
+        """
+
+    def clear_state(activity, agent, registration=None):
+        """
+        Clear state(s) with specified activity and agent
+
+        :param activity: Activity object of state(s) to be deleted
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param agent: Agent object of state(s) to be deleted
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param registration: registration UUID of state(s) to be deleted
+        :type registration: str
+        :return: True if the state was cleared
+        :rtype: bool
+        """
+
+    # activity profiles
+
+    def retrieve_activity_profile_ids(activity, since=None):
+        """
+        Retrieve activity profile id(s) with the specified parameters
+
+        :param activity: Activity object of desired activity profiles
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param since: Retrieve activity profile id's since this time
+        :type since: str 
+        :return: List of retrieved activity profile ids
+        """
+
+    def retrieve_activity_profile(activity, profile_id):
+        """
+        Retrieve activity profile with the specified parameters
+
+        :param activity: Activity object of the desired activity profile
+        :type activity: :class:`nti.xapi.interfaces.IActivity`
+        :param profile_id: UUID of the desired profile
+        :type profile_id: str
+        :return: Activity profile doc
+        :rtype: :class:`nti.xapi.interfaces.IActivityProfileDocument`
+        """
+    
+    def save_activity_profile(profile):
+        """
+        Save an activity profile doc to the LRS
+
+        :param profile: Activity profile doc to be saved
+        :type profile: :class:`nti.xapi.interfaces.IActivityProfileDocument`
+        :return: The saved activity profile doc
+        :rtype: :class:`nti.xapi.interfaces.IActivityProfileDocument`
+        """
+
+    def delete_activity_profile(profile):
+        """
+        Delete activity profile doc from LRS
+
+        :param profile: Activity profile document to be deleted
+        :type profile: :class:`nti.xapi.interfaces.IActivityProfileDocument`
+        :return: True if object was deleted
+        :rtype: bool
+        """
+
+    # agent profiles
+    
+    def retrieve_agent_profile_ids(agent, since=None):
+        """
+        Retrieve agent profile id(s) with the specified parameters
+
+        :param agent: Agent object of desired agent profiles
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param since: Retrieve agent profile id's since this time
+        :type since: str
+        :return: List of retrieved agent profile ids
+        """
+    
+    def retrieve_agent_profile(agent, profile_id):
+        """
+        Retrieve agent profile with the specified parameters
+
+        :param agent: Agent object of the desired agent profile
+        :type agent: :class:`nti.xapi.interfaces.IAgent`
+        :param profile_id: UUID of the desired agent profile
+        :type profile_id: str
+        :return: An agent profile document
+        :rtype: :class:`nti.xapi.interfaces.IAgentProfileDocument`
+        """
+    
+    def save_agent_profile(profile):
+        """
+        Save an agent profile doc to the LRS
+
+        :param profile: Agent profile doc to be saved
+        :type profile: :class:`nti.xapi.documents.interfaces.IAgentProfileDocument`
+        :return: The saved agent profile doc
+        :rtype: :class:`nti.xapi.documents.interfaces.IAgentProfileDocument`
+        """
+
+    def delete_agent_profile(profile):
+        """
+        Delete agent profile doc from LRS
+
+        :param profile: Agent profile document to be deleted
+        :type profile: :class:`nti.xapi.interfaces.IAgentProfileDocument`
+        :return: True if object was deleted
+        :rtype: bool
+        """
