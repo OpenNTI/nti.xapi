@@ -3,96 +3,101 @@
             xmlns:i18n="http://namespaces.zope.org/i18n"
             xmlns:zcml="http://namespaces.zope.org/zcml">
 
-    <include package="zope.component" file="meta.zcml" />
-    <include package="zope.component" />
+	<include package="zope.component" file="meta.zcml" />
+	<include package="zope.component" />
 
-    <include package="nti.externalization" />
+	<include package="nti.externalization" />
 
-    <adapter factory=".io_datastructures.XAPIBaseIO"
-	     for=".interfaces.IXAPIBase"
-	     provides="nti.externalization.interfaces.IInternalObjectIO" />
+	<adapter factory=".io_datastructures.XAPIBaseIO"
+			 for=".interfaces.IXAPIBase"
+			 provides="nti.externalization.interfaces.IInternalObjectIO" />
 
-    <adapter factory=".language_map.LanguageMapIO"
-	     for=".interfaces.ILanguageMap"
-	     provides="nti.externalization.interfaces.IInternalObjectIO" />
+	<adapter factory=".language_map.LanguageMapIO"
+			 for=".interfaces.ILanguageMap"
+			 provides="nti.externalization.interfaces.IInternalObjectIO" />
 
-    <adapter factory=".extensions.ExtensionsIO"
-	     for=".interfaces.IExtensions"
-	     provides="nti.externalization.interfaces.IInternalObjectIO" />
+	<adapter factory=".extensions.ExtensionsIO"
+			 for=".interfaces.IExtensions"
+			 provides="nti.externalization.interfaces.IInternalObjectIO" />
 
-    <adapter factory=".language_map.LanguageMap"
-	     for="dict"
-	     provides=".interfaces.ILanguageMap" />
+	<adapter factory=".language_map.LanguageMap"
+			 for="dict"
+			 provides=".interfaces.ILanguageMap" />
     
-    <adapter factory=".extensions.Extensions"
-	     for="dict"
-	     provides=".interfaces.IExtensions" />
+	<adapter factory=".extensions.Extensions"
+			 for="dict"
+			 provides=".interfaces.IExtensions" />
 
-    <adapter factory=".entities._account_factory"
-	     for="dict"
-	     provides=".interfaces.IAgentAccount" />
+	<adapter factory=".entities._account_factory"
+			 for="dict"
+			 provides=".interfaces.IAgentAccount" />
 
-    <adapter factory=".entities._agent_factory"
-	     for="dict"
-	     provides=".interfaces.IAgent" />
+	<adapter factory=".entities._agent_factory"
+			 for="dict"
+			 provides=".interfaces.IAgent" />
 
-    <adapter factory=".entities._entity_factory"
-	     for="dict"
-	     provides=".interfaces.INamedEntity" />
+	<adapter factory=".entities._entity_factory"
+			 for="dict"
+			 provides=".interfaces.INamedEntity" />
 
-     <adapter factory=".entities._group_factory"
-	     for="dict"
-	     provides=".interfaces.IGroup" />
+	<adapter factory=".entities._group_factory"
+			 for="dict"
+			 provides=".interfaces.IGroup" />
 
-     <adapter factory=".verb._verb_factory"
-	     for="dict"
-	     provides=".interfaces.IVerb" />
+	<adapter factory=".verb._verb_factory"
+			 for="dict"
+			 provides=".interfaces.IVerb" />
 
-     <adapter factory=".activity._activity_definition_factory"
-	     for="dict"
-	     provides=".interfaces.IActivityDefinition" />
+	<adapter factory=".activity._activity_definition_factory"
+			 for="dict"
+			 provides=".interfaces.IActivityDefinition" />
 
      <adapter factory=".activity._activity_factory"
-	     for="dict"
-	     provides=".interfaces.IActivity" />
+			  for="dict"
+			  provides=".interfaces.IActivity" />
 
-      <adapter factory=".context._context_activity_factory"
-	     for="dict"
-	     provides=".interfaces.IContextActivities" />
+ 	<adapter factory=".context._context_activity_factory"
+			 for="dict"
+			 provides=".interfaces.IContextActivities" />
 
-     <adapter factory=".context._context_factory"
-	     for="dict"
-	     provides=".interfaces.IContext" />
+	<adapter factory=".context._context_factory"
+			 for="dict"
+			 provides=".interfaces.IContext" />
 
-     <adapter factory=".result._score_factory"
-	     for="dict"
-	     provides=".interfaces.IScore" />
+	<adapter factory=".result._score_factory"
+			 for="dict"
+			 provides=".interfaces.IScore" />
 
-     <adapter factory=".result._result_factory"
-	     for="dict"
-	     provides=".interfaces.IResult" />
+	<adapter factory=".result._result_factory"
+			 for="dict"
+			 provides=".interfaces.IResult" />
 
-     <adapter factory=".attachment._attachment_factory"
-	     for="dict"
-	     provides=".interfaces.IAttachment" />
+	<adapter factory=".attachment._attachment_factory"
+			 for="dict"
+			 provides=".interfaces.IAttachment" />
 
      <adapter factory=".result.ResultIO"
-	     for=".interfaces.IResult"
-	     provides="nti.externalization.interfaces.IInternalObjectIO" />
+			  for=".interfaces.IResult"
+			  provides="nti.externalization.interfaces.IInternalObjectIO" />
 
-     <adapter factory=".statement._statement_ref_factory"
-	     for="dict"
-	     provides=".interfaces.IStatementRef" />
+	<adapter factory=".statement._statement_ref_factory"
+			 for="dict"
+			 provides=".interfaces.IStatementRef" />
 
-     <adapter factory=".statement._sub_statement_factory"
-	     for="dict"
-	     provides=".interfaces.ISubStatement" />
+ 	<adapter factory=".statement._sub_statement_factory"
+			 for="dict"
+			 provides=".interfaces.ISubStatement" />
 
-     <adapter factory=".statement._statement_factory"
-	     for="dict"
-	     provides=".interfaces.IStatement" />
+	<adapter factory=".statement._statement_factory"
+			 for="dict"
+			 provides=".interfaces.IStatement" />
 
-     <adapter factory=".statement.StatementIO"
-	     for=".interfaces.IStatementBase"
-	     provides="nti.externalization.interfaces.IInternalObjectIO" />
+	<adapter factory=".statement._statement_result_factory"
+			 for="dict"
+			 provides=".interfaces.IStatementResult" />
+
+	<adapter factory=".statement.StatementIO"
+			 for=".interfaces.IStatementBase"
+			 provides="nti.externalization.interfaces.IInternalObjectIO" />
+
 </configure>
