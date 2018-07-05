@@ -37,11 +37,11 @@ class TestScore(unittest.TestCase):
     def setUp(self):
 
         self.data = {
-	    "scaled": 0.95,
+        "scaled": 0.95,
             "raw": 95,
             "min": 0,
             "max": 100
-	}
+    }
         self.score = IScore(self.data)
 
     def validate_score(self, score):
@@ -69,16 +69,16 @@ class TestResult(TestScore):
 
     def setUp(self):
         self.data = {
-	    "score":{
-	        "scaled": 0.95,
+        "score":{
+            "scaled": 0.95,
                 "raw": 95,
                 "min": 0,
                 "max": 100
-	    },
-	    "success": True,
-	    "completion": True,
-	    "duration": "PT1234S"
-	}
+        },
+        "success": True,
+        "completion": True,
+        "duration": "PT1234S"
+    }
         self.result = IResult(dict(self.data))
 
     def validate_result(self, result):

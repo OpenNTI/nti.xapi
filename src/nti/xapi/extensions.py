@@ -18,7 +18,6 @@ from nti.xapi.io_datastructures import MappingIO
 
 KEY_VALIDATOR = ValidURI(required=True)
 
-
 logger = __import__('logging').getLogger(__name__)
 
 
