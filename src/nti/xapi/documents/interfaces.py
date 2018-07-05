@@ -43,7 +43,7 @@ class IDocument(interface.Interface):
 
 class IStateDocument(IDocument):
     """
-    StateDocument interface
+    State Document interface
     """
 
     agent = Object(IAgent,
@@ -56,3 +56,13 @@ class IStateDocument(IDocument):
 
     registration = ValidTextLine(title=u'The document registration.',
                                  required=False)
+
+
+class IActivityProfileDocument(IDocument):
+    """
+    Activity Profile Document interface
+    """
+
+    activity = Object(IActivity,
+                      title=u'The document activity',
+                      required=False)
