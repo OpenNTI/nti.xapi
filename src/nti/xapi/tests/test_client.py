@@ -25,6 +25,7 @@ from nti.xapi.client import LRSClient
 from nti.xapi.activity import Activity
 
 from nti.xapi.documents.document import StateDocument
+from nti.xapi.documents.document import ActivityProfileDocument
 
 from nti.xapi.entities import Agent
 
@@ -358,4 +359,25 @@ class TestClient(unittest.TestCase):
         response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(response)
         result = client.retrieve_activity_profile(activity, 'uuid')
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.put')
+    def test_save_activity_profile(self, mock_ss):
+        doc = ActivityProfileDocument(id="1234",
+                                      content=b"bytes",
+                                      activity=Activity(id="act"),
+                                      etag="xyz")
+
+        # success
+        response = fudge.Fake().has_attr(status_code=204)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.save_activity_profile(doc)
+        assert_that(result, is_(doc))
+
+        # failed
+        response = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.save_activity_profile(doc)
         assert_that(result, is_(none()))

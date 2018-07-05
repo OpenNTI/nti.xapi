@@ -27,6 +27,7 @@ from nti.xapi.documents.document import StateDocument
 from nti.xapi.documents.document import ActivityProfileDocument
 
 from nti.xapi.documents.interfaces import IStateDocument
+from nti.xapi.documents.interfaces import IActivityProfileDocument
 
 from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import Version
@@ -598,6 +599,41 @@ class LRSClient(object):
                              response.status_code, profile_id)
 
             return result
+
+    def save_activity_profile(self, profile):
+        """
+        Save an activity profile doc to the LRS
+
+        :param profile: Activity profile doc to be saved
+        :type profile: :class:`nti.xapi.interfaces.IActivityProfileDocument`
+        :return: The saved activity profile doc
+        :rtype: :class:`nti.xapi.interfaces.IActivityProfileDocument`
+        """
+        profile = IActivityProfileDocument(profile, profile)
+
+        # set pararms
+        # pylint: disable=no-member
+        params = {
+            "profileId": profile.id,
+            "activityId": profile.activity.id
+        }
+        headers = {
+            "Content-Type": profile.content_type or "application/octet-stream"
+        }
+        if profile.etag is not None:
+            headers["If-Match"] = profile.etag
+
+        result = profile
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            # pylint: disable=too-many-function-args
+            response = session.put(url, auth=self.auth, params=params,
+                                   data=profile.content, headers=headers)
+            if not (200 <= response.status_code < 300):
+                logger.error("Invalid server response [%s] while saving profile %s",
+                             response.status_code, profile.id)
+                result = None
+        return result
 
     # misc
 
