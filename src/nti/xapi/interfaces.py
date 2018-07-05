@@ -102,7 +102,7 @@ class IAbout(IXAPIBase):
     version = ListOrTuple(title=u'version',
                           description=u'The support versions',
                           required=True,
-                          default=(Version.latest, ))
+                          default=(Version.latest,))
 
     extensions = Object(IExtensions,
                         title=u'supported extensions',
@@ -185,7 +185,7 @@ class IAnonymousGroup(IGroup):
     """
     member = ListOrTuple(title=u'The members of this Group.',
                          value_type=Object(IAgent),
-                         default=[],
+                         default=(),
                          required=True)
 
 
