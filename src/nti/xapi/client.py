@@ -25,6 +25,8 @@ from nti.xapi.about import About
 
 from nti.xapi.documents.document import StateDocument
 
+from nti.xapi.documents.interfaces import IStateDocument
+
 from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import Version
 from nti.xapi.interfaces import IActivity
@@ -171,8 +173,7 @@ class LRSClient(object):
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement(
-                    data) if modeled else json.loads(data)
+                result = self.read_statement(data) if modeled else json.loads(data)
             else:
                 logger.error("Invalid server response [%s] while getting statement %s",
                              response.status_code, statement_id)
@@ -197,8 +198,7 @@ class LRSClient(object):
                                    params=payload)
             if response.ok:
                 data = self.prepare_json_text(response.text)
-                result = self.read_statement(
-                    data) if modeled else json.loads(data)
+                result = self.read_statement(data) if modeled else json.loads(data)
             else:
                 logger.error("Invalid server response [%s] while getting voided statement %s",
                              response.status_code, statement_id)
@@ -405,6 +405,41 @@ class LRSClient(object):
             return result
     retrieve_state = get_state
 
+    def save_state(self, state):
+        """
+        Save a state doc to the LRS
+
+        :param state: State document to be saved
+        :type state: :class:`tincan.documents.state_document.StateDocument`
+        :return: LRS Response object with saved state as content
+        :rtype: :class:`tincan.lrs_response.LRSResponse`
+        """
+        state = IStateDocument(state, state)
+        # set pararms
+        # pylint: disable=no-member
+        params = {
+            'stateId': state.id,
+            "activityId": state.activity.id,
+            "agent": json.dumps(to_external_object(state.agent))
+        }
+        headers = {
+            "Content-Type": state.content_type or "application/octet-stream"
+        }
+        if state.etag is not None:
+            headers["If-Match"] = state.etag
+            
+        result = state
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "activities/state")
+            # pylint: disable=too-many-function-args
+            response = session.put(url, auth=self.auth, params=params,
+                                   data=state.content, headers=headers)
+            if not (200 <= response.status_code < 300):
+                logger.error("Invalid server response [%s] while saving state %s",
+                             response.status_code, state.id)
+                result = None
+        return result 
+
     # misc
 
     def get_endpoint_server_root(self):
@@ -417,6 +452,4 @@ class LRSClient(object):
         parsed = urllib_parse.urlparse(self.endpoint)
         root = parsed.scheme + "://" + parsed.netloc
         return root
-
-
 client = LRSClient

@@ -20,12 +20,13 @@ from datetime import datetime
 
 import fudge
 
-from zope import interface
-
 from nti.xapi.client import LRSClient
 
-from nti.xapi.interfaces import IAgent
-from nti.xapi.interfaces import IActivity
+from nti.xapi.activity import Activity
+
+from nti.xapi.documents.document import StateDocument
+
+from nti.xapi.entities import Agent
 
 from nti.xapi.tests import SharedConfiguringTestLayer
 
@@ -222,26 +223,13 @@ class TestClient(unittest.TestCase):
     def test_retrieve_state(self, mock_ss, mock_ex):
         mock_ex.is_callable().returns('ext')
 
-        @interface.implementer(IActivity)
-        class Activity(object):
-            id = 'activity'
-            definition = None
-
-        @interface.implementer(IAgent)
-        class Agent(object):
-            mbox = None
-            name = None
-            openid = None
-            account = None
-            mbox_sha1sum = None
-
         headers = {
             'etag': 'xyz',
             'contentType': 'msword',
             'lastModified': datetime.now()
         }
         agent = Agent()
-        activity = Activity()
+        activity = Activity(id="myact")
 
         # success
         response = fudge.Fake().has_attr(content=b'bytes').has_attr(ok=True).has_attr(headers=headers)
@@ -254,4 +242,27 @@ class TestClient(unittest.TestCase):
         response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
         mock_ss.is_callable().returns(response)
         result = client.get_state(activity, agent, 'uuid')
+        assert_that(result, is_(none()))
+        
+    @fudge.patch('requests.Session.put',
+                 'nti.xapi.client.to_external_object')
+    def test_save_state(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        doc = StateDocument(id="1234",
+                            content=b"bytes",
+                            activity=Activity(id="act"),
+                            agent=Agent(),
+                            etag="xyz")
+
+        # success
+        response = fudge.Fake().has_attr(status_code=204)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.save_state(doc)
+        assert_that(result, is_not(none()))
+
+        response = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.save_state(doc)
         assert_that(result, is_(none()))
