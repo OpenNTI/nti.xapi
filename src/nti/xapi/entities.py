@@ -1,32 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
-logger = __import__('logging').getLogger(__name__)
-
+from zope import component
 from zope import interface
 
 from zope.schema.fieldproperty import createFieldProperties
-
-from nti.externalization.interfaces import IInternalObjectIO
 
 from nti.externalization.internalization import update_from_external_object
 
 from nti.schema.fieldproperty import createDirectFieldProperties
 
-from nti.schema.schema import SchemaConfigured
 from nti.schema.schema import schemadict
+from nti.schema.schema import SchemaConfigured
 
-from .interfaces import IAgentAccount
-from .interfaces import IAgent
-from .interfaces import IAnonymousGroup
-from .interfaces import IGroup
-from .interfaces import IIdentifiedGroup
-from .interfaces import IIFIEntity
+from nti.xapi.interfaces import IAgent
+from nti.xapi.interfaces import IGroup
+from nti.xapi.interfaces import IIFIEntity
+from nti.xapi.interfaces import INamedEntity
+from nti.xapi.interfaces import IAgentAccount
+from nti.xapi.interfaces import IAnonymousGroup
+from nti.xapi.interfaces import IIdentifiedGroup
+
+logger = __import__('logging').getLogger(__name__)
 
 
+@component.adapter(dict)
+@interface.implementer(IAgentAccount)
 def _account_factory(ext):
     account = AgentAccount()
     update_from_external_object(account, ext)
@@ -35,7 +41,6 @@ def _account_factory(ext):
 
 @interface.implementer(IAgentAccount)
 class AgentAccount(SchemaConfigured):
-
     createDirectFieldProperties(IAgentAccount)
 
 
@@ -43,6 +48,8 @@ class IFIMixin(object):
     pass
 
 
+@component.adapter(dict)
+@interface.implementer(IAgent)
 def _agent_factory(ext):
     agent = Agent()
     update_from_external_object(agent, ext)
@@ -51,10 +58,10 @@ def _agent_factory(ext):
 
 @interface.implementer(IAgent)
 class Agent(SchemaConfigured, IFIMixin):
+    createFieldProperties(IAgent)
 
     objectType = 'Agent'
 
-    createFieldProperties(IAgent)
 
 def _is_ifientity(ext):
     schema = schemadict(IIFIEntity)
@@ -64,6 +71,8 @@ def _is_ifientity(ext):
     return False
 
 
+@component.adapter(dict)
+@interface.implementer(IGroup)
 def _group_factory(ext):
     factory = AnonymousGroup
     if _is_ifientity(ext):
@@ -71,22 +80,19 @@ def _group_factory(ext):
     group = factory()
     update_from_external_object(group, ext)
     return group
-    
+
 
 class GroupBase(object):
-    
     objectType = 'Group'
 
-    
+
 @interface.implementer(IAnonymousGroup)
 class AnonymousGroup(GroupBase, SchemaConfigured):
-
     createFieldProperties(IAnonymousGroup)
 
 
 @interface.implementer(IIdentifiedGroup)
 class IdentifiedGroup(GroupBase, SchemaConfigured, IFIMixin):
-
     createFieldProperties(IIdentifiedGroup)
 
 
@@ -95,9 +101,10 @@ ENTITY_IFACE_MAP = {
     'Group': IGroup
 }
 
+
+@component.adapter(dict)
+@interface.implementer(INamedEntity)
 def _entity_factory(ext):
     object_type = ext.get('objectType', None)
-    if object_type not in ENTITY_IFACE_MAP:
-        return None
-
-    return ENTITY_IFACE_MAP[object_type](ext)
+    if object_type in ENTITY_IFACE_MAP:
+        return ENTITY_IFACE_MAP[object_type](ext)
