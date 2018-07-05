@@ -1,22 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
-logger = __import__('logging').getLogger(__name__)
-
+from zope import component
 from zope import interface
 
 from nti.externalization.internalization import update_from_external_object
 
-from nti.schema.schema import SchemaConfigured
-
 from nti.schema.fieldproperty import createDirectFieldProperties
 
-from .interfaces import IAttachment
+from nti.schema.schema import SchemaConfigured
+
+from nti.xapi.interfaces import IAttachment
+
+logger = __import__('logging').getLogger(__name__)
 
 
+@component.adapter(dict)
+@interface.implementer(IAttachment)
 def _attachment_factory(ext):
     attachment = Attachment()
     update_from_external_object(attachment, ext)
@@ -25,5 +32,4 @@ def _attachment_factory(ext):
 
 @interface.implementer(IAttachment)
 class Attachment(SchemaConfigured):
-
     createDirectFieldProperties(IAttachment)

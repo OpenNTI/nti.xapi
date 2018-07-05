@@ -102,7 +102,7 @@ class IAbout(IXAPIBase):
     version = ListOrTuple(title=u'version',
                           description=u'The support versions',
                           required=True,
-                          default=(Version.latest, ))
+                          default=(Version.latest,))
 
     extensions = Object(IExtensions,
                         title=u'supported extensions',
@@ -184,9 +184,9 @@ class IAnonymousGroup(IGroup):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#description-3
     """
     member = ListOrTuple(title=u'The members of this Group.',
-                          value_type=Object(IAgent),
-                          default=[],
-                          required=True)
+                         value_type=Object(IAgent),
+                         default=(),
+                         required=True)
 
 
 class IIdentifiedGroup(IGroup, IIFIEntity):
@@ -196,8 +196,8 @@ class IIdentifiedGroup(IGroup, IIFIEntity):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#description-3
     """
     member = ListOrTuple(title=u'The members of this Group.',
-                          value_type=Object(IAgent),
-                          required=False)
+                         value_type=Object(IAgent),
+                         required=False)
 
 
 class IVerb(IXAPIBase):
@@ -398,12 +398,12 @@ class IAttachment(IXAPIBase):
                     min=0)
 
     sha2 = ValidTextLine(title=u'The SHA-2 hash of the Attachment data.',
-                                 required=True,
-                                 min_length=1)
+                         required=True,
+                         min_length=1)
 
     fileUrl = ValidURI(title=u'An IRL at which the Attachment data can be retrieved',
                        required=False)
-                    
+
 
 class IScore(IXAPIBase):
     """
@@ -540,8 +540,6 @@ class IStatement(IStatementBase):
     authority = Object(INamedEntity,
                        title=u'Agent or Group who is asserting this Statement is true.',
                        required=False)
-
-    
 
 
 class IStatementList(interface.Interface):
