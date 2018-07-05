@@ -25,6 +25,7 @@ from nti.xapi.client import LRSClient
 from nti.xapi.activity import Activity
 
 from nti.xapi.documents.document import StateDocument
+from nti.xapi.documents.document import AgentProfileDocument
 from nti.xapi.documents.document import ActivityProfileDocument
 
 from nti.xapi.entities import Agent
@@ -450,3 +451,49 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(response)
         result = client.retrieve_agent_profile(agent, 'uuid')
         assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.put',
+                 'nti.xapi.client.to_external_object')
+    def test_save_agent_profile(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        doc = AgentProfileDocument(id="1234",
+                                   content=b"bytes",
+                                   agent=Agent(),
+                                   etag="xyz")
+
+        # success
+        response = fudge.Fake().has_attr(status_code=204)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.save_agent_profile(doc)
+        assert_that(result, is_not(none()))
+
+        # failed
+        response = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.save_agent_profile(doc)
+        assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.delete',
+                 'nti.xapi.client.to_external_object')
+    def test_delete_agent_profile(self, mock_ss, mock_ex):
+        mock_ex.is_callable().returns('ext')
+        doc = AgentProfileDocument(id="1234",
+                                   content=b"bytes",
+                                   agent=Agent(),
+                                   etag="xyz")
+
+        # success
+        response = fudge.Fake().has_attr(status_code=204)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.delete_agent_profile(doc)
+        assert_that(result, is_(True))
+
+        # failed
+        response = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.delete_agent_profile(doc)
+        assert_that(result, is_(False))

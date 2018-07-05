@@ -624,7 +624,7 @@ class LRSClient(object):
             response = session.put(url, auth=self.auth, params=params,
                                    data=profile.content, headers=headers)
             if not (200 <= response.status_code < 300):
-                logger.error("Invalid server response [%s] while saving profile %s",
+                logger.error("Invalid server response [%s] while saving activity profile %s",
                              response.status_code, profile.id)
                 result = None
         return result
@@ -686,7 +686,7 @@ class LRSClient(object):
         # query
         result = None
         with self.session() as session:
-            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            url = urllib_parse.urljoin(self.endpoint, "agents/profile")
             # pylint: disable=too-many-function-args
             response = session.get(url, auth=self.auth, params=params)
             if response.ok:
@@ -721,7 +721,7 @@ class LRSClient(object):
         # query
         result = None
         with self.session() as session:
-            url = urllib_parse.urljoin(self.endpoint, "activities/profile")
+            url = urllib_parse.urljoin(self.endpoint, "agents/profile")
             # pylint: disable=too-many-function-args
             response = session.get(url, auth=self.auth, params=params)
             if response.ok:
@@ -737,6 +737,74 @@ class LRSClient(object):
             return result
     get_agent_profile = retrieve_agent_profile
     
+    def save_agent_profile(self, profile):
+        """
+        Save an agent profile doc to the LRS
+
+        :param profile: Agent profile doc to be saved
+        :type profile: :class:`nti.xapi.documents.interfaces.IAgentProfileDocument`
+        :return: The saved agent profile doc
+        :rtype: :class:`nti.xapi.documents.interfaces.IAgentProfileDocument`
+        """
+        profile = IAgentProfileDocument(profile, profile)
+
+        # set params
+        # pylint: disable=no-member
+        params = {
+            "profileId": profile.id,
+            "agent": json.dumps(to_external_object(profile.agent))
+        }
+        headers = {
+            "Content-Type": profile.content_type or "application/octet-stream"
+        }
+        if profile.etag is not None:
+            headers["If-Match"] = profile.etag
+
+        result = profile
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "agents/profile")
+            # pylint: disable=too-many-function-args
+            response = session.put(url, auth=self.auth, params=params,
+                                   data=profile.content, headers=headers)
+            if not (200 <= response.status_code < 300):
+                logger.error("Invalid server response [%s] while saving agent profile %s",
+                             response.status_code, profile.id)
+                result = None
+        return result
+
+    def delete_agent_profile(self, profile):
+        """
+        Delete agent profile doc from LRS
+
+        :param profile: Agent profile document to be deleted
+        :type profile: :class:`nti.xapi.interfaces.IAgentProfileDocument`
+        :return: True if object was deleted
+        :rtype: bool
+        """
+        profile = IAgentProfileDocument(profile, profile)
+
+        # set params
+        # pylint: disable=no-member
+        params = {
+            "profileId": profile.id,
+            "agent": json.dumps(to_external_object(profile.agent))
+        }
+
+        # headers
+        headers = {"If-Match": profile.etag} if profile.etag else None
+
+        result = True
+        with self.session() as session:
+            url = urllib_parse.urljoin(self.endpoint, "agents/profile")
+            # pylint: disable=too-many-function-args
+            response = session.delete(url, auth=self.auth, params=params,
+                                      headers=headers)
+            if not (200 <= response.status_code < 300):
+                logger.error("Invalid server response [%s] while deleting activity profile %s",
+                             response.status_code, profile.id)
+                result = False
+        return result
+
     # misc
 
     def _set_document_headers(self, doc, headers):
