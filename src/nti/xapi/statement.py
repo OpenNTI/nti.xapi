@@ -1,29 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
-logger = __import__('logging').getLogger(__name__)
-
+from zope import component
 from zope import interface
 
 from nti.externalization.internalization import update_from_external_object
 
-from nti.schema.schema import SchemaConfigured
-
 from nti.schema.fieldproperty import createDirectFieldProperties
 
-from .interfaces import IActivity
-from .interfaces import IAgent
-from .interfaces import IGroup
-from .interfaces import IStatement
-from .interfaces import IStatementBase
-from .interfaces import IStatementRef
-from .interfaces import ISubStatement
+from nti.schema.schema import SchemaConfigured
 
-from .io_datastructures import XAPIBaseIO
+from nti.xapi.interfaces import IAgent
+from nti.xapi.interfaces import IGroup
+from nti.xapi.interfaces import IActivity
+from nti.xapi.interfaces import IStatement
+from nti.xapi.interfaces import IStatementRef
+from nti.xapi.interfaces import ISubStatement
+from nti.xapi.interfaces import IStatementBase
+from nti.xapi.interfaces import IStatementResult
 
+from nti.xapi.io_datastructures import XAPIBaseIO
+
+logger = __import__('logging').getLogger(__name__)
+
+
+@component.adapter(dict)
+@interface.implementer(IStatementRef)
 def _statement_ref_factory(ext):
     ref = StatementRef()
     update_from_external_object(ref, ext)
@@ -32,7 +41,6 @@ def _statement_ref_factory(ext):
 
 @interface.implementer(IStatementRef)
 class StatementRef(SchemaConfigured):
-
     createDirectFieldProperties(IStatementRef)
 
     objectType = 'StatementRef'
@@ -40,10 +48,11 @@ class StatementRef(SchemaConfigured):
 
 @interface.implementer(IStatementBase)
 class StatementBase(object):
-
     createDirectFieldProperties(IStatementBase)
 
 
+@component.adapter(dict)
+@interface.implementer(ISubStatement)
 def _sub_statement_factory(ext):
     sub_stmt = SubStatement()
     update_from_external_object(sub_stmt, ext)
@@ -52,12 +61,13 @@ def _sub_statement_factory(ext):
 
 @interface.implementer(ISubStatement)
 class SubStatement(SchemaConfigured, StatementBase):
-
     createDirectFieldProperties(ISubStatement)
 
     objectType = 'SubStatement'
 
 
+@component.adapter(dict)
+@interface.implementer(IStatement)
 def _statement_factory(ext):
     stmt = Statement()
     update_from_external_object(stmt, ext)
@@ -66,20 +76,33 @@ def _statement_factory(ext):
 
 @interface.implementer(IStatement)
 class Statement(SchemaConfigured, StatementBase):
-
     createDirectFieldProperties(IStatement)
 
     objectType = 'Statement'
 
 
+@component.adapter(dict)
+@interface.implementer(IStatementResult)
+def _statement_result_factory(ext):
+    result = StatementResult()
+    update_from_external_object(result, ext)
+    return result
+
+
+@interface.implementer(IStatementResult)
+class StatementResult(SchemaConfigured):
+    createDirectFieldProperties(IStatementResult)
+
+
 OBJECT_IFACE_MAP = {
     'Agent': IAgent,
     'Group': IGroup,
-    'SubStatement': ISubStatement,
-    'StatementRef': IStatementRef,
+    'Activity': IActivity,
     'Statement': IStatement,
-    'Activity': IActivity
+    'StatementRef': IStatementRef,
+    'SubStatement': ISubStatement,
 }
+
 
 class StatementIO(XAPIBaseIO):
 
@@ -94,4 +117,3 @@ class StatementIO(XAPIBaseIO):
             self._ext_setattr(self._ext_self, 'object', obj)
             modified = True
         return super(StatementIO, self).updateFromExternalObject(parsed, *args, **kwargs) or modified
-            
