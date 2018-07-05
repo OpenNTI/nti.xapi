@@ -28,12 +28,14 @@ from nti.externalization.externalization import to_external_object
 from . import SharedConfiguringTestLayer
 
 from ..interfaces import IActivity
+from ..interfaces import IAgent
 from ..interfaces import IContext
 from ..interfaces import IContextActivities
+from ..interfaces import IGroup
 
 from ..context import Context
 from ..context import ContextActivities
-       
+
 class TestContextActivities(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
@@ -86,7 +88,7 @@ class TestContextActivities(unittest.TestCase):
         for key in ('parent', 'category', 'other'):
             for activity in getattr(ca, key):
                 assert_that(activity, verifiably_provides(IActivity))
-        
+                
     def test_creation(self):
         self.validate_context_activities(self.ca)
 
@@ -98,3 +100,84 @@ class TestContextActivities(unittest.TestCase):
         update_from_external_object(ca, self.data)
 
         self.validate_context_activities(self.ca)
+
+
+class TestContext(TestContextActivities):
+
+    layer = SharedConfiguringTestLayer
+
+    def setUp(self):
+        self.data = {
+            "registration": "ec531277-b57b-4c15-8d91-d292c5b2b8f7",
+            "contextActivities": {
+                "parent": [
+                    {
+                        "id": "http://www.example.com/meetings/series/267",
+                        "objectType": "Activity"
+                    }
+                ],
+                "category": [
+                    {
+                        "id": "http://www.example.com/meetings/categories/teammeeting",
+                        "objectType": "Activity",
+                        "definition": {
+			    "name": {
+			        "en": "team meeting"
+			    },
+			    "description": {
+			        "en": "A category of meeting used for regular team meetings."
+			    },
+			    "type": "http://example.com/expapi/activities/meetingcategory"
+			}
+                    }
+                ],
+                "other": [
+                    {
+                        "id": "http://www.example.com/meetings/occurances/34257",
+                        "objectType": "Activity"
+                    },
+                    {
+                        "id": "http://www.example.com/meetings/occurances/3425567",
+                        "objectType": "Activity"
+                    }
+                ]
+            },
+            "instructor" :
+            {
+        	"name": "Andrew Downes",
+                "account": {
+                    "homePage": "http://www.example.com",
+                    "name": "13936749"
+                },
+                "objectType": "Agent"
+            },
+            "team":
+            {
+        	"name": "Team PB",
+        	"mbox": "mailto:teampb@example.com",
+        	"objectType": "Group"
+            }, 
+            "platform" : "Example virtual meeting software",
+            "language" : "tlh"
+            
+    }
+        self.context = IContext(self.data)
+
+    def validate_context(self, context):
+        assert_that(context, verifiably_provides(IContext))
+        assert_that(context.registration, is_('ec531277-b57b-4c15-8d91-d292c5b2b8f7'))
+        assert_that(context.language, is_('tlh'))
+        assert_that(context.platform, is_('Example virtual meeting software'))
+        assert_that(context.team, verifiably_provides(IGroup))
+        assert_that(context.instructor, verifiably_provides(IAgent))
+        
+    def test_creation(self):
+        self.validate_context(self.context)
+
+    def test_externalization(self):
+        assert_that(to_external_object(self.context), is_(self.data))
+
+    def test_internalization(self):
+        context = Context()
+        update_from_external_object(context, self.data)
+        self.validate_context(context)
