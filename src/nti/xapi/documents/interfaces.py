@@ -66,3 +66,13 @@ class IActivityProfileDocument(IDocument):
     activity = Object(IActivity,
                       title=u'The document activity',
                       required=False)
+
+
+class IAgentProfileDocument(IDocument):
+    """
+    Agent Profile Document interface
+    """
+
+    agent = Object(IAgent,
+                   title=u'The document agent',
+                   required=False)
