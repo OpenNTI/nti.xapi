@@ -10,11 +10,15 @@ from __future__ import absolute_import
 
 # pylint: disable=inherit-non-class
 
+import re
+
 from zope import interface
 
 from zope.interface import Attribute
 
 from zope.interface.common.mapping import IMapping
+
+from zope.schema.interfaces import ValidationError
 
 from nti.schema.field import Bool
 from nti.schema.field import Number
@@ -25,6 +29,27 @@ from nti.schema.field import Timedelta
 from nti.schema.field import ListOrTuple
 from nti.schema.field import ValidDatetime
 from nti.schema.field import DecodingValidTextLine as ValidTextLine
+
+
+_UUID_REGEX = re.compile(
+    r'^[a-f0-9]{8}-'
+    r'[a-f0-9]{4}-'
+    r'[1-5][a-f0-9]{3}-'
+    r'[89ab][a-f0-9]{3}-'
+    r'[a-f0-9]{12}$'
+)
+
+
+def _check_uuid(uuid):
+    if not _UUID_REGEX.match(uuid):
+        raise InvalidUUID('Invalid UUID')
+    return True
+
+
+class InvalidUUID(ValidationError):
+    """
+    Raised when a UUID is of the wrong format
+    """
 
 
 class Version(object):
@@ -260,7 +285,8 @@ class IStatementRef(IXAPIBase):
     """
 
     id = ValidTextLine(title=u'ID for the statement we are referencing',
-                       required=True)
+                       required=True,
+                       constraint=_check_uuid)
 
 
 class IContextActivities(IXAPIBase):
@@ -308,7 +334,8 @@ class IContext(IXAPIBase):
 
     # Use a field that actually validates UUID. Will be assigned
     registration = ValidTextLine(title=u'The registration that the Statement is associated with.',
-                                 required=False)
+                                 required=False,
+                                 constraint=_check_uuid)
 
     instructor = Object(INamedEntity,
                         title=u'Instructor that the Statement relates to, if not included as the Actor of the Statement.',
@@ -458,10 +485,9 @@ class IStatement(IStatementBase):
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#statements
     """
 
-    # Use a field that actually validates UUID. Will be assigned
-    # by the LRS if not provided
     id = ValidTextLine(title=u'The UUID for this statement',
-                       required=False)
+                       required=False,
+                       constraint=_check_uuid)
 
     # Redefine object to the variant we expect
     object = Variant((Object(INamedEntity),

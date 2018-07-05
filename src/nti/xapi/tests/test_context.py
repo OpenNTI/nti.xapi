@@ -181,3 +181,8 @@ class TestContext(TestContextActivities):
         context = Context()
         update_from_external_object(context, self.data)
         self.validate_context(context)
+
+    def test_registration_is_uuid(self):
+        context = Context()
+        with self.assertRaises(ValidationError):
+            context.registration = 'foo'
