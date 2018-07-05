@@ -56,4 +56,12 @@
 	     for="dict"
 	     provides=".interfaces.IActivity" />
 
+      <adapter factory=".context._context_activity_factory"
+	     for="dict"
+	     provides=".interfaces.IContextActivities" />
+
+     <adapter factory=".context._context_factory"
+	     for="dict"
+	     provides=".interfaces.IContext" />
+
 </configure>
