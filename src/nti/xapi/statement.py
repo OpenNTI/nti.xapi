@@ -93,6 +93,10 @@ def _statement_result_factory(ext):
 class StatementResult(SchemaConfigured):
     createDirectFieldProperties(IStatementResult)
 
+    def __iter__(self):
+        # pylint: disable=no-member
+        return iter(self.statements or ())
+
 
 OBJECT_IFACE_MAP = {
     'Agent': IAgent,
