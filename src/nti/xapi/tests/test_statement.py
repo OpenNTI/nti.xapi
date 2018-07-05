@@ -12,6 +12,7 @@ from hamcrest import is_
 from hamcrest import has_property
 from hamcrest import has_entry
 from hamcrest import has_entries
+from hamcrest import has_length
 
 
 import unittest
@@ -98,7 +99,15 @@ class TestStatement(unittest.TestCase):
 		"success": True,
 		"completion":True,
 		"duration": "PT1234S"
-	    }
+	    },
+            "attachments": [{
+                "usageType": "http://adlnet.gov/expapi/attachments/signature",
+                "display": { "en-US": "Signature" },
+                "description": { "en-US": "A test signature" },
+                "contentType": "application/octet-stream",
+                "length": 4235,
+                "sha2": "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
+            }]
         }
 
         self.statement = IStatement(dict(self.data))
@@ -106,6 +115,7 @@ class TestStatement(unittest.TestCase):
     def validate_statement(self, statement):
         assert_that(statement, verifiably_provides(IStatement))
         assert_that(statement, has_property('id', is_('7ccd3322-e1a5-411a-a67d-6a735c76f119')))
+        assert_that(statement, has_property('attachments', has_length(1)))
 
     def test_statement(self):
         self.validate_statement(self.statement)

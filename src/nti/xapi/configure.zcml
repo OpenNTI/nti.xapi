@@ -72,6 +72,10 @@
 	     for="dict"
 	     provides=".interfaces.IResult" />
 
+     <adapter factory=".attachment._attachment_factory"
+	     for="dict"
+	     provides=".interfaces.IAttachment" />
+
      <adapter factory=".result.ResultIO"
 	     for=".interfaces.IResult"
 	     provides="nti.externalization.interfaces.IInternalObjectIO" />

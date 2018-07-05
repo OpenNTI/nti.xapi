@@ -370,8 +370,40 @@ class IContext(IXAPIBase):
 
 
 class IAttachment(IXAPIBase):
-    pass
+    """
+    In some cases an Attachment is logically an important part of a Learning Record.
+    It could be an essay, a video, etc. Another example of such an Attachment is (the image of) 
+    a certificate that was granted as a result of an experience. 
+    It is useful to have a way to store these Attachments in and retrieve them from an LRS.
 
+    See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2411-attachments
+    """
+    usageType = ValidURI(title=u'Identifies the usage of this Attachment.',
+                         required=True)
+
+    display = Object(ILanguageMap,
+                     title=u'Display name (title) of this Attachment.',
+                     required=True)
+
+    description = Object(ILanguageMap,
+                         title=u'A description of the Attachment',
+                         required=False)
+
+    contentType = ValidTextLine(title=u'The content type of the Attachment.',
+                                required=True,
+                                min_length=1)
+
+    length = Number(title=u'The length of the Attachment data in octets.',
+                    required=True,
+                    min=0)
+
+    sha2 = ValidTextLine(title=u'The SHA-2 hash of the Attachment data.',
+                                 required=True,
+                                 min_length=1)
+
+    fileUrl = ValidURI(title=u'An IRL at which the Attachment data can be retrieved',
+                       required=False)
+                    
 
 class IScore(IXAPIBase):
     """
