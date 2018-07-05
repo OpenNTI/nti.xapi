@@ -243,7 +243,7 @@ class TestClient(unittest.TestCase):
         activity = Activity(id="myact")
 
         # success
-        response = fudge.Fake().has_attr(content=b'bytes').has_attr(ok=True).has_attr(headers=headers)
+        response = fudge.Fake().has_attr(content=b'b').has_attr(ok=True).has_attr(headers=headers)
         mock_ss.is_callable().returns(response)
 
         client = self.get_client()
@@ -348,7 +348,7 @@ class TestClient(unittest.TestCase):
         activity = Activity(id="myact")
 
         # success
-        response = fudge.Fake().has_attr(content=b'bytes').has_attr(ok=True).has_attr(headers=headers)
+        response = fudge.Fake().has_attr(content=b'b').has_attr(ok=True).has_attr(headers=headers)
         mock_ss.is_callable().returns(response)
 
         client = self.get_client()
@@ -381,3 +381,24 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(response)
         result = client.save_activity_profile(doc)
         assert_that(result, is_(none()))
+
+    @fudge.patch('requests.Session.delete')
+    def test_delete_activity_profile(self, mock_ss):
+        doc = ActivityProfileDocument(id="1234",
+                                      content=b"bytes",
+                                      activity=Activity(id="act"),
+                                      etag="xyz")
+
+        # success
+        response = fudge.Fake().has_attr(status_code=204)
+        mock_ss.is_callable().returns(response)
+
+        client = self.get_client()
+        result = client.delete_activity_profile(doc)
+        assert_that(result, is_(True))
+
+        # failed
+        response = fudge.Fake().has_attr(status_code=422)
+        mock_ss.is_callable().returns(response)
+        result = client.delete_activity_profile(doc)
+        assert_that(result, is_(False))
