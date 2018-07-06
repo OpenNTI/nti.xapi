@@ -7,11 +7,8 @@ from __future__ import absolute_import
 
 # pylint: disable=protected-access,too-many-public-methods
 
-from hamcrest import is_
 from hamcrest import assert_that
 from hamcrest import has_property
-
-from nti.testing.matchers import verifiably_provides
 
 from zope import component
 
@@ -27,7 +24,10 @@ LRS_ZCML_STRING = u"""
 	<include package="zope.component" />
 	
 	<include package="." file="meta.zcml" />
-	<xapi:registerLRSClient endpoint="http://nextthought.com/lrs" username="foo" password="bar" />
+	<xapi:registerLRSClient 
+				endpoint="http://nextthought.com/lrs" 
+				username="foo" 
+				password="bar" />
 </configure>
 """
 
@@ -37,7 +37,8 @@ class TestZcml(nti.testing.base.ConfiguringTestBase):
     def test_lrs(self):
         self.configure_string(LRS_ZCML_STRING)
         lrs_client = component.getUtility(ILRSClient)
-        assert_that(lrs_client, has_property('endpoint', 'http://nextthought.com/lrs'))
+        assert_that(lrs_client, 
+					has_property('endpoint', 'http://nextthought.com/lrs'))
         assert_that(lrs_client, has_property('username', 'foo'))
         assert_that(lrs_client, has_property('password', 'bar'))
         assert_that(lrs_client, has_property('version', '1.0.3'))

@@ -59,7 +59,10 @@ setup(
         'simplejson',
         'six',
         'zope.component',
+        'zope.configuration',
         'zope.interface',
+        'zope.schema',
+        'zope.security',
     ],
     extras_require={
         'test': TESTS_REQUIRE,
