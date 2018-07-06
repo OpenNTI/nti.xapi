@@ -102,4 +102,6 @@
 			 for=".interfaces.IStatementBase"
 			 provides="nti.externalization.interfaces.IInternalObjectIO" />
 
+	<include package="." file="meta.zcml" />
+
 </configure>
