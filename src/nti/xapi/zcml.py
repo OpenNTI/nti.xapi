@@ -18,6 +18,8 @@ from zope.component.zcml import utility
 
 from zope.configuration import fields
 
+from zope.schema import URI
+
 from nti.xapi.client import LRSClient
 
 from nti.xapi.interfaces import Version
@@ -28,8 +30,8 @@ logger = __import__('logging').getLogger(__name__)
 
 class IRegisterLRSClient(interface.Interface):
 
-    endpoint = fields.TextLine(title=u'The xAPI LRS endpoint',
-                               required=True)
+    endpoint = URI(title=u'The xAPI LRS endpoint',
+                   required=True)
 
     username = fields.TextLine(title=u'The xAPI LRS username.',
                                required=False)
