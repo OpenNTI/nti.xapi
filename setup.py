@@ -59,6 +59,7 @@ setup(
         'simplejson',
         'six',
         'zope.component',
+        'zope.configuration',
         'zope.interface',
     ],
     extras_require={
