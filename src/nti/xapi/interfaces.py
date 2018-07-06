@@ -57,10 +57,10 @@ class Version(object):
     Version information
     """
     supported = [
-        '1.0.3',
-        '1.0.2',
-        '1.0.1',
-        '1.0.0',
+        u'1.0.3',
+        u'1.0.2',
+        u'1.0.1',
+        u'1.0.0',
     ]
     latest = supported[0]
 
