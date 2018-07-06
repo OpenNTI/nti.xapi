@@ -1,6 +1,5 @@
 import codecs
-from setuptools import setup
-from setuptools import find_packages
+from setuptools import setup, find_packages
 
 entry_points = {
     'console_scripts': [
@@ -34,6 +33,7 @@ setup(
     license='Apache',
     keywords='xAPI',
     classifiers=[
+        'Framework :: Zope3',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Operating System :: OS Independent',
@@ -44,6 +44,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
+    url="https://github.com/NextThought/nti.xapi",
     zip_safe=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
