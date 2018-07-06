@@ -7,28 +7,29 @@ from __future__ import absolute_import
 
 # pylint: disable=protected-access,too-many-public-methods
 
-from hamcrest import assert_that
 from hamcrest import is_
 from hamcrest import has_entry
+from hamcrest import assert_that
+from hamcrest import has_property
 
+from nti.testing.matchers import verifiably_provides
 
 import unittest
 
 from zope.schema.interfaces import ValidationError
 
-from nti.testing.matchers import verifiably_provides
-
 from nti.externalization.internalization import update_from_external_object
 
 from nti.externalization.externalization import to_external_object
 
-from . import SharedConfiguringTestLayer
+from nti.xapi.interfaces import IVerb
+from nti.xapi.interfaces import ILanguageMap
 
-from ..interfaces import ILanguageMap
-from ..interfaces import IVerb
+from nti.xapi.tests import SharedConfiguringTestLayer
 
-from ..verb import Verb
-       
+from nti.xapi.verb import Verb
+
+
 class TestVerb(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
@@ -36,25 +37,25 @@ class TestVerb(unittest.TestCase):
     def setUp(self):
 
         self.data = {
-	    "id":"http://adlnet.gov/expapi/verbs/voided",
-	    "display":{
-		"en-US":"voided"
-	    }
-	}
+            "id": "http://adlnet.gov/expapi/verbs/voided",
+            "display": {
+                "en-US": "voided"
+            }
+        }
 
     def test_bad(self):
         with self.assertRaises(ValidationError):
-            verb = IVerb({'id': 'foio', 'display': 1})
+            IVerb({'id': 'foio', 'display': 1})
 
     def test_creation(self):
         verb = IVerb(self.data)
-
         assert_that(verb, verifiably_provides(IVerb))
-
-        assert_that(verb.id, is_('http://adlnet.gov/expapi/verbs/voided'))
-        assert_that(verb.display, verifiably_provides(ILanguageMap))
-
-        assert_that(verb.display, has_entry('en-US', 'voided'))
+        assert_that(verb,
+                    has_property('id', is_('http://adlnet.gov/expapi/verbs/voided')))
+        assert_that(verb,
+                    has_property('display', verifiably_provides(ILanguageMap)))
+        assert_that(verb,
+                    has_property('display', has_entry('en-US', 'voided')))
 
     def test_externalization(self):
         verb = IVerb(self.data)
@@ -63,7 +64,9 @@ class TestVerb(unittest.TestCase):
     def test_internalization(self):
         verb = Verb()
         update_from_external_object(verb, self.data)
-        assert_that(verb.id, is_('http://adlnet.gov/expapi/verbs/voided'))
-        assert_that(verb.display, verifiably_provides(ILanguageMap))
-
-        assert_that(verb.display, has_entry('en-US', 'voided'))
+        assert_that(verb,
+                    has_property('id', is_('http://adlnet.gov/expapi/verbs/voided')))
+        assert_that(verb,
+                    has_property('display', verifiably_provides(ILanguageMap)))
+        assert_that(verb,
+                    has_property('display', has_entry('en-US', 'voided')))
