@@ -20,8 +20,8 @@ from zope.configuration import fields
 
 from nti.xapi.client import LRSClient
 
-from nti.xapi.interfaces import ILRSClient
 from nti.xapi.interfaces import Version
+from nti.xapi.interfaces import ILRSClient
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -41,6 +41,9 @@ class IRegisterLRSClient(interface.Interface):
                               required=False,
                               default=Version.latest)
 
-def registerLRSClient(_context, endpoint=None, username=None, password=None, version=Version.latest):
-    factory = partial(LRSClient, endpoint, username=username, password=password, version=version)
+
+def registerLRSClient(_context, endpoint=None, username=None, password=None, 
+                      version=Version.latest):
+    factory = partial(LRSClient, endpoint, username=username,
+                      password=password, version=version)
     utility(_context, provides=ILRSClient, factory=factory)
