@@ -58,12 +58,20 @@ class ResultIO(XAPIBaseIO):
     def updateFromExternalObject(self, parsed, *args, **kwargs):  # pylint: disable: arguments-differ
         duration = parsed.pop('duration', None)
         if duration:
-            parsed['duration'] = isodate.parse_duration(duration)
+            try:
+                parsed['duration'] = isodate.parse_duration(duration)
+            except TypeError:
+                # already a duration
+                pass
         return super(ResultIO, self).updateFromExternalObject(parsed, *args, **kwargs)
 
     def toExternalObject(self, *args, **kwargs):
         duration = getattr(self._ext_self, 'duration', None)
         result = super(ResultIO, self).toExternalObject(*args, **kwargs)
         if duration:
-            result['duration'] = isodate.duration_isoformat(duration)
+            try:
+                result['duration'] = isodate.duration_isoformat(duration)
+            except TypeError:
+                # not a duration
+                result['duration'] = duration
         return result
