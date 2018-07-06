@@ -120,4 +120,7 @@ class StatementIO(XAPIBaseIO):
                 obj = factory(obj) if factory else obj
             self._ext_setattr(self._ext_self, 'object', obj)
             modified = True
+        if 'actor' in parsed:
+            if 'objectType' not in parsed['actor']:
+                parsed['actor']['objectType'] = 'Agent'
         return super(StatementIO, self).updateFromExternalObject(parsed, *args, **kwargs) or modified

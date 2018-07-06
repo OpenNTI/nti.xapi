@@ -26,6 +26,7 @@ from nti.externalization.externalization import to_external_object
 
 from nti.externalization.internalization import update_from_external_object
 
+from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import IStatement
 from nti.xapi.interfaces import IStatementRef
 from nti.xapi.interfaces import ISubStatement
@@ -136,6 +137,33 @@ class TestStatement(unittest.TestCase):
         stmt = IStatement(d)
         assert_that(stmt, verifiably_provides(IStatement))
 
+    def test_ambiguous_actor(self):
+        stmt_data = {
+            "timestamp": "2015-12-18T12:17:00Z",
+            "actor": {
+                "name": "Example Learner",
+                "mbox": "mailto:example.learner@adlnet.gov"
+            },
+            "verb": {
+                "id": "http://adlnet.gov/expapi/verbs/attempted",
+                "display": {
+                    "en-US": "attempted"
+                }
+            },
+            "object": {
+                "id": "http://example.adlnet.gov/xapi/example/simpleCBT",
+                "definition": {
+                    "name": {
+                        "en-US": "simple CBT course"
+                    },
+                    "description": {
+                        "en-US": "A fictitious example CBT course."
+                    }
+                }
+            }
+        }
+        stmt = IStatement(stmt_data)
+        assert_that(stmt.actor, verifiably_provides(IAgent))
 
 class TestSubStatement(TestStatement):
 
