@@ -476,7 +476,8 @@ class IStatementBase(IXAPIBase):
     object = Attribute(u'Base type for a statement.')
 
     timestamp = ValidDatetime(
-        title=u'Timestamp of when the events described within this Statement occurred.')
+        title=u'Timestamp of when the events described within this Statement occurred.',
+        required=False)
 
     context = Object(IContext,
                      title=u'Context that gives the Statement more meaning.',

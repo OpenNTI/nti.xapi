@@ -130,6 +130,12 @@ class TestStatement(unittest.TestCase):
         assert_that(external,
                     has_entries('id', '7ccd3322-e1a5-411a-a67d-6a735c76f119'))
 
+    def test_timestamp_optional(self):
+        d = dict(self.data)
+        d.pop('timestamp')
+        stmt = IStatement(d)
+        assert_that(stmt, verifiably_provides(IStatement))
+
 
 class TestSubStatement(TestStatement):
 
@@ -184,7 +190,7 @@ class TestSubStatement(TestStatement):
 class TestStatementResult(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
-    
+
     def setUp(self):
         statement = {
             "id": "7ccd3322-e1a5-411a-a67d-6a735c76f119",
