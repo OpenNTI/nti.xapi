@@ -86,7 +86,7 @@ class LRSClient(object):
         with self.session() as session:
             url = urllib_parse.urljoin(self.endpoint, "about")
             # pylint: disable=too-many-function-args
-            response = session.get(session, url, auth=self.auth)
+            response = session.get(url, auth=self.auth)
             if response.ok:
                 data = self.prepare_json_text(response.text)
                 result = self.read_about(data)
