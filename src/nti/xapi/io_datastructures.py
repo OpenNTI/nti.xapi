@@ -65,4 +65,5 @@ class XAPIBaseIO(InterfaceObjectIO):
             for k in list(ext.keys()):
                 if ext[k] is None:
                     ext.pop(k)
+        ext.pop('ID', None)
         return ext
