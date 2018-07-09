@@ -587,7 +587,7 @@ class ILRSClient(interface.Interface):
 
         :param statement: Statement object to be saved
         :type statement: :class:`nti.xapi.interfaces.IStatement`
-        :return: Tthe saved statement
+        :return: The saved statement
         :rtype: :class:`nti.xapi.interfaces.IStatement`
         """
 
