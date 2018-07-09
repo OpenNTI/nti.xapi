@@ -15,6 +15,7 @@ from hamcrest import has_length
 from hamcrest import has_entries
 from hamcrest import assert_that
 from hamcrest import has_property
+does_not = is_not
 
 from nti.testing.matchers import verifiably_provides
 
@@ -164,6 +165,9 @@ class TestStatement(unittest.TestCase):
         }
         stmt = IStatement(stmt_data)
         assert_that(stmt.actor, verifiably_provides(IAgent))
+
+    def test_no_object_type(self):
+        assert_that(self.statement, does_not(has_property('objectType', 'Statement')))
 
 class TestSubStatement(TestStatement):
 
