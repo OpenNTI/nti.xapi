@@ -71,7 +71,9 @@ class LRSClient(object):
         return (self.username, self.password) if self.username else None
 
     def session(self):
-        return Session()
+        s = Session()
+        s.headers.update({'X-Experience-API-Version': self.version})
+        return s
 
     @classmethod
     def prepare_json_text(cls, data):
@@ -113,10 +115,11 @@ class LRSClient(object):
             payload = to_external_object(statement)
             # pylint: disable=too-many-function-args
             response = method(url, auth=self.auth,
-                              data=payload, params=params)
+                              json=payload, params=params)
             if (200 <= response.status_code < 300):
                 data = self.prepare_json_text(response.text)
-                update_from_external_object(statement, data)
+                data = json.loads(data, "utf-8")
+                statement.id = data[0]
             else:
                 statement = None
                 logger.error("Invalid server response [%s] while saving statement.",
@@ -128,7 +131,7 @@ class LRSClient(object):
             url = urllib_parse.urljoin(self.endpoint, "statements")
             payload = to_external_object(statements)
             # pylint: disable=too-many-function-args
-            response = session.post(url, payload, auth=self.auth)
+            response = session.post(url, json=payload, auth=self.auth)
             if (200 <= response.status_code < 300):
                 data = self.prepare_json_text(response.text)
                 data = json.loads(data, "utf-8")
