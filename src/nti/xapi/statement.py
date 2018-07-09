@@ -78,8 +78,6 @@ def _statement_factory(ext):
 class Statement(SchemaConfigured, StatementBase):
     createDirectFieldProperties(IStatement)
 
-    objectType = 'Statement'
-
 
 @component.adapter(dict)
 @interface.implementer(IStatementResult)
