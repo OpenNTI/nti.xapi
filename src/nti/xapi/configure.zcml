@@ -10,7 +10,7 @@
 
 	<include package="nti.externalization" />
 
-	<adapter factory=".io_datastructures.XAPIBaseIO"
+	<adapter factory=".datastructures.XAPIBaseIO"
 			 for=".interfaces.IXAPIBase"
 			 provides="nti.externalization.interfaces.IInternalObjectIO" />
 

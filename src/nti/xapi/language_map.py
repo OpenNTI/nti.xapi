@@ -12,9 +12,9 @@ import six
 
 from zope import interface
 
-from nti.xapi.interfaces import ILanguageMap
+from nti.xapi.datastructures import MappingIO
 
-from nti.xapi.io_datastructures import MappingIO
+from nti.xapi.interfaces import ILanguageMap
 
 logger = __import__('logging').getLogger(__name__)
 
