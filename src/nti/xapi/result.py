@@ -19,7 +19,7 @@ from nti.schema.fieldproperty import createDirectFieldProperties
 
 from nti.schema.schema import SchemaConfigured
 
-from nti.xapi.io_datastructures import XAPIBaseIO
+from nti.xapi.datastructures import XAPIBaseIO
 
 from nti.xapi.interfaces import IScore
 from nti.xapi.interfaces import IResult

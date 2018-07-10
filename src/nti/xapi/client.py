@@ -118,7 +118,7 @@ class LRSClient(object):
                               json=payload, params=params)
             if (200 <= response.status_code < 300):
                 data = self.prepare_json_text(response.text)
-                data = json.loads(data, "utf-8")
+                data = (sid,) if sid else json.loads(data, "utf-8")
                 statement.id = data[0]
             else:
                 statement = None

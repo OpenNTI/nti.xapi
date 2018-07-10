@@ -12,9 +12,9 @@ from zope import interface
 
 from nti.schema.field import ValidURI
 
-from nti.xapi.interfaces import IExtensions
+from nti.xapi.datastructures import MappingIO
 
-from nti.xapi.io_datastructures import MappingIO
+from nti.xapi.interfaces import IExtensions
 
 KEY_VALIDATOR = ValidURI(required=True)
 

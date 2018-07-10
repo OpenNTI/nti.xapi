@@ -17,6 +17,8 @@ from nti.schema.fieldproperty import createDirectFieldProperties
 
 from nti.schema.schema import SchemaConfigured
 
+from nti.xapi.datastructures import XAPIBaseIO
+
 from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import IGroup
 from nti.xapi.interfaces import IActivity
@@ -25,8 +27,6 @@ from nti.xapi.interfaces import IStatementRef
 from nti.xapi.interfaces import ISubStatement
 from nti.xapi.interfaces import IStatementBase
 from nti.xapi.interfaces import IStatementResult
-
-from nti.xapi.io_datastructures import XAPIBaseIO
 
 logger = __import__('logging').getLogger(__name__)
 
