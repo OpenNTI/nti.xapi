@@ -15,10 +15,10 @@ from nti.externalization.interfaces import StandardExternalFields
 
 from nti.xapi.interfaces import IXAPIBase
 
-CLASS = StandardExternalFields.CLASS
 ID = StandardExternalFields.ID
-NTIID = StandardExternalFields.NTIID
 OID = StandardExternalFields.OID
+CLASS = StandardExternalFields.CLASS
+NTIID = StandardExternalFields.NTIID
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -72,4 +72,3 @@ class XAPIBaseIO(InterfaceObjectIO):
         ext.pop(OID, None)
         ext.pop(NTIID, None)
         return ext
-
