@@ -11,6 +11,9 @@ from hamcrest import assert_that
 from hamcrest import is_
 from hamcrest import has_entries
 from hamcrest import has_entry
+from hamcrest import has_key
+from hamcrest import is_not
+does_not = is_not
 
 
 import unittest
@@ -128,3 +131,12 @@ class TestActivity(TestActivityDefinition):
         update_from_external_object(activity, self.data)
 
         self.validate_activity(self.activity)
+
+    def test_ntiid_based_id(self):
+        activity = Activity(id='tag:nextthought.com,2011-10:system-OID-0x3b07:5573657273:PeNxy42MYYR')
+        external = to_external_object(activity)
+
+        assert_that(external, has_entry('id', 'tag:nextthought.com,2011-10:system-OID-0x3b07:5573657273:PeNxy42MYYR'))
+        assert_that(external, does_not(has_key('ID')))
+        assert_that(external, does_not(has_key('OID')))
+        assert_that(external, does_not(has_key('NTIID')))
