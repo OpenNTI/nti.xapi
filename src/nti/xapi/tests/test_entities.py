@@ -27,15 +27,14 @@ from . import SharedConfiguringTestLayer
 
 from ..interfaces import IAgent
 from ..interfaces import IAgentAccount
-from ..interfaces import IGroup
 from ..interfaces import IIdentifiedGroup
 from ..interfaces import IAnonymousGroup
-from ..interfaces import INamedEntity
 
 from ..entities import Agent
 from ..entities import AgentAccount
 from ..entities import _group_factory
 from ..entities import _entity_factory
+
 
 class TestAgentAccount(unittest.TestCase):
 
@@ -65,6 +64,7 @@ class TestAgentAccount(unittest.TestCase):
         account = AgentAccount()
         with self.assertRaises(ValidationError):
             account.homePage = 'foo'
+
 
 class TestAgentAccountIO(unittest.TestCase):
 
@@ -127,6 +127,7 @@ class TestAgent(unittest.TestCase):
     def test_empty_open_id(self):
         with self.assertRaises(ValidationError):
             Agent(name='test', mbox='mailto:test@test.com', mbox_sha1sum='test', openid='')
+
 
 class TestAgentIO(unittest.TestCase):
 

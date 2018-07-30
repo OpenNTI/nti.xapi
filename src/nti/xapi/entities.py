@@ -8,12 +8,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from zope import component
 from zope import interface
 
 from zope.schema.fieldproperty import createFieldProperties
-
-from nti.externalization.internalization import update_from_external_object
 
 from nti.schema.fieldproperty import createDirectFieldProperties
 
@@ -21,9 +18,7 @@ from nti.schema.schema import schemadict
 from nti.schema.schema import SchemaConfigured
 
 from nti.xapi.interfaces import IAgent
-from nti.xapi.interfaces import IGroup
 from nti.xapi.interfaces import IIFIEntity
-from nti.xapi.interfaces import INamedEntity
 from nti.xapi.interfaces import IAgentAccount
 from nti.xapi.interfaces import IAnonymousGroup
 from nti.xapi.interfaces import IIdentifiedGroup

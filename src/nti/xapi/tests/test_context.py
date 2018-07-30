@@ -9,8 +9,6 @@ from __future__ import absolute_import
 
 from hamcrest import assert_that
 from hamcrest import is_
-from hamcrest import has_entries
-from hamcrest import has_entry
 from hamcrest import has_length
 from hamcrest import none
 

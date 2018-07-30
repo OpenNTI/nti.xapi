@@ -31,7 +31,6 @@ from nti.xapi.interfaces import IAgent
 from nti.xapi.interfaces import IStatement
 from nti.xapi.interfaces import IStatementRef
 from nti.xapi.interfaces import ISubStatement
-from nti.xapi.interfaces import IStatementResult
 
 from nti.xapi.statement import Statement
 from nti.xapi.statement import StatementRef

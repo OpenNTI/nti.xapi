@@ -15,10 +15,7 @@ from hamcrest import has_key
 from hamcrest import is_not
 does_not = is_not
 
-
 import unittest
-
-from zope.schema.interfaces import ValidationError
 
 from nti.testing.matchers import verifiably_provides
 

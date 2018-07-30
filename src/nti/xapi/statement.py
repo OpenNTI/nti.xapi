@@ -8,10 +8,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from zope import component
 from zope import interface
-
-from nti.externalization.internalization import update_from_external_object
 
 from nti.schema.fieldproperty import createDirectFieldProperties
 
@@ -22,11 +19,6 @@ from nti.xapi.activity import Activity
 from nti.xapi.entities import Agent
 from nti.xapi.entities import _group_factory
 
-from nti.xapi.datastructures import XAPIBaseIO
-
-from nti.xapi.interfaces import IAgent
-from nti.xapi.interfaces import IGroup
-from nti.xapi.interfaces import IActivity
 from nti.xapi.interfaces import IStatement
 from nti.xapi.interfaces import IStatementRef
 from nti.xapi.interfaces import ISubStatement
@@ -39,7 +31,7 @@ logger = __import__('logging').getLogger(__name__)
 @interface.implementer(IStatementRef)
 class StatementRef(SchemaConfigured):
 
-    __external_can_create__= True
+    __external_can_create__ = True
 
     createDirectFieldProperties(IStatementRef)
 
@@ -88,6 +80,7 @@ OBJECT_FACTORIES = {
     'StatementRef': lambda x: StatementRef(),
     'SubStatement': lambda x: SubStatement(),
 }
+
 
 def _statement_object_factory(ext):
     object_type = ext.get('objectType', 'Activity')
