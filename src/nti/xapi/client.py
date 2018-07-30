@@ -245,7 +245,7 @@ class LRSClient(object):
         result = StatementResult()
         update_from_external_object(result, data)
         return result
-        
+
     # states
 
     def retrieve_state_ids(self, activity, agent, registration=None, since=None):
@@ -453,7 +453,7 @@ class LRSClient(object):
 
             return result
     get_activity_profile = retrieve_activity_profile
-    
+
     def save_activity_profile(self, profile):
         profile = IActivityProfileDocument(profile, profile)
 
@@ -507,10 +507,10 @@ class LRSClient(object):
         return result
 
     # agent profiles
-    
+
     def retrieve_agent_profile_ids(self, agent, since=None):
         agent = IAgent(agent, agent)
-        
+
         # set params
         params = {
             "agent": json.dumps(to_external_object(agent))
@@ -532,7 +532,7 @@ class LRSClient(object):
                              response.status_code)
             return result
     get_agent_profile_ids = retrieve_agent_profile_ids
-    
+
     def retrieve_agent_profile(self, agent, profile_id):
         agent = IAgent(agent, agent)
 
@@ -561,7 +561,7 @@ class LRSClient(object):
 
             return result
     get_agent_profile = retrieve_agent_profile
-    
+
     def save_agent_profile(self, profile):
         profile = IAgentProfileDocument(profile, profile)
 

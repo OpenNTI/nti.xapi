@@ -40,7 +40,7 @@ logger = __import__('logging').getLogger(__name__)
 class StatementRef(SchemaConfigured):
 
     __external_can_create__= True
-    
+
     createDirectFieldProperties(IStatementRef)
 
     objectType = 'StatementRef'
@@ -50,13 +50,13 @@ class StatementRef(SchemaConfigured):
 class StatementBase(object):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IStatementBase)
 
 
 @interface.implementer(ISubStatement)
 class SubStatement(SchemaConfigured, StatementBase):
-    
+
     createDirectFieldProperties(ISubStatement)
 
     objectType = 'SubStatement'
@@ -64,7 +64,7 @@ class SubStatement(SchemaConfigured, StatementBase):
 
 @interface.implementer(IStatement)
 class Statement(SchemaConfigured, StatementBase):
-    
+
     createDirectFieldProperties(IStatement)
 
 
@@ -72,7 +72,7 @@ class Statement(SchemaConfigured, StatementBase):
 class StatementResult(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IStatementResult)
 
     def __iter__(self):

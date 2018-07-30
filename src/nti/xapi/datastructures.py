@@ -64,7 +64,7 @@ class XAPIBaseIO(InterfaceObjectIO):
             ext['objectType'] = self._ext_getattr(self._ext_replacement(), 'objectType')
         except AttributeError:
             pass
-        
+
         # pop empty values
         if self._ext_pop_none:
             for k in list(ext.keys()):

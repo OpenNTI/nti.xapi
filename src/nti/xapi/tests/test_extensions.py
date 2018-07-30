@@ -33,7 +33,7 @@ class TestExtensions(unittest.TestCase):
 
     def test_implements(self):
         assert_that(Extensions(), verifiably_provides(IExtensions))
-    
+
     def test_extensions(self):
         exts = Extensions()
         assert_that(exts, has_length(0))
@@ -50,8 +50,8 @@ class TestExtensions(unittest.TestCase):
     def test_takes_dict(self):
         exts = Extensions({'https://foo.com/a': 10})
         assert_that(exts, has_entry('https://foo.com/a', 10))
-        
-        
+
+
 
 class TestExtensionsIO(TestExtensions):
 

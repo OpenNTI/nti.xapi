@@ -28,7 +28,7 @@ logger = __import__('logging').getLogger(__name__)
 class ContextActivities(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IContextActivities)
 
 
@@ -36,5 +36,5 @@ class ContextActivities(SchemaConfigured):
 class Context(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IContext)

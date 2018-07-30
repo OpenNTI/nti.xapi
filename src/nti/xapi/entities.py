@@ -35,7 +35,7 @@ logger = __import__('logging').getLogger(__name__)
 class AgentAccount(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IAgentAccount)
 
 
@@ -71,7 +71,7 @@ def _group_factory(ext):
 class GroupBase(object):
 
     __external_can_create__ = True
-    
+
     objectType = 'Group'
 
 

@@ -28,13 +28,13 @@ logger = __import__('logging').getLogger(__name__)
 class ActivityDefinition(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IActivityDefinition)
 
 
 @interface.implementer(IActivity)
 class Activity(SchemaConfigured):
-    
+
     createDirectFieldProperties(IActivity)
 
     __external_can_create__ = True

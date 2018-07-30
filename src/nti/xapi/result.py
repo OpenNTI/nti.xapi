@@ -28,7 +28,7 @@ logger = __import__('logging').getLogger(__name__)
 class Score(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IScore)
 
 
@@ -36,7 +36,7 @@ class Score(SchemaConfigured):
 class Result(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IResult)
 
 

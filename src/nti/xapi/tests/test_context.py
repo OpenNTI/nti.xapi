@@ -90,7 +90,7 @@ class TestContextActivities(unittest.TestCase):
         for key in ('parent', 'category', 'other'):
             for activity in getattr(ca, key):
                 assert_that(activity, verifiably_provides(IActivity))
-                
+
     def test_creation(self):
         self.validate_context_activities(self.ca)
 
@@ -159,10 +159,10 @@ class TestContext(TestContextActivities):
         	"name": "Team PB",
         	"mbox": "mailto:teampb@example.com",
         	"objectType": "Group"
-            }, 
+            },
             "platform" : "Example virtual meeting software",
             "language" : "tlh"
-            
+
     }
 
     def setUp(self):
@@ -176,7 +176,7 @@ class TestContext(TestContextActivities):
         assert_that(context.platform, is_('Example virtual meeting software'))
         assert_that(context.team, verifiably_provides(IGroup))
         assert_that(context.instructor, verifiably_provides(IAgent))
-        
+
     def test_creation(self):
         self.validate_context(self.context)
 

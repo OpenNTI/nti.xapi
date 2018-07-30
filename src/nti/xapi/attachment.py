@@ -26,5 +26,5 @@ logger = __import__('logging').getLogger(__name__)
 class Attachment(SchemaConfigured):
 
     __external_can_create__ = True
-    
+
     createDirectFieldProperties(IAttachment)

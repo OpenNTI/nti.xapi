@@ -33,7 +33,7 @@ from ..interfaces import IActivityDefinition
 
 from ..activity import Activity
 from ..activity import ActivityDefinition
-       
+
 class TestActivityDefinition(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer

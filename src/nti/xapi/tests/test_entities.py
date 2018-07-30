@@ -76,7 +76,7 @@ class TestAgentAccountIO(unittest.TestCase):
             "homePage": "http://www.example.com",
             "name": "1625378"
         }
-    
+
     def test_to_external_object(self):
         account = AgentAccount(**self.data)
         assert_that(to_external_object(account), self.data)
@@ -87,14 +87,14 @@ class TestAgentAccountIO(unittest.TestCase):
 
         assert_that(account.name, is_(self.data['name']))
         assert_that(account.homePage, is_(self.data['homePage']))
-        
+
 
 class TestAgent(unittest.TestCase):
 
     def test_iface(self):
         agent = Agent()
         assert_that(agent, verifiably_provides(IAgent))
-        
+
     def test_object_type(self):
         agent = Agent()
         assert_that(agent.objectType, is_('Agent'))
@@ -102,7 +102,7 @@ class TestAgent(unittest.TestCase):
     def test_init(self):
         agent = Agent(name='test', mbox='mailto:test@test.com', mbox_sha1sum='test', openid='http://toby.openid.example.org/',
                       account=AgentAccount(name="test", homePage="http://test.com"))
-        
+
         assert_that(agent.objectType, is_('Agent'))
         assert_that(agent.name,  is_('test'))
         assert_that(agent.mbox,  is_('mailto:test@test.com'))
@@ -134,9 +134,9 @@ class TestAgentIO(unittest.TestCase):
 
     @property
     def basic_agent(self):
-        return { 
-	    "objectType": "Agent", 
-	    "mbox":"mailto:test@example.com" 
+        return {
+	    "objectType": "Agent",
+	    "mbox":"mailto:test@example.com"
         }
 
     @property
@@ -179,7 +179,7 @@ class TestAgentIO(unittest.TestCase):
         assert_that(agent, verifiably_provides(IAgent))
         assert_that(to_external_object(agent), is_(self.basic_agent))
 
-        
+
 class TestGroup(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
@@ -211,7 +211,7 @@ class TestGroup(unittest.TestCase):
             ],
             "objectType": "Group"
         }
-    
+
     @property
     def anon_group(self):
 
@@ -225,14 +225,14 @@ class TestGroup(unittest.TestCase):
 		    },
                     "objectType": "Agent"
 		},
-		{ 
+		{
 		    "mbox":"mailto:bob@example.com",
                     "objectType": "Agent"
 		}
 	    ]
         }
 
-       
+
 
     def test_as_group(self):
         ig = _group_factory(self.identified_group)

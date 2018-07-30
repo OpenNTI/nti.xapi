@@ -87,7 +87,7 @@ class TestResult(TestScore):
             "completion": True,
             "duration": "PT1234S"
         }
-    
+
     def setUp(self):
         self.result = Result()
         update_from_external_object(self.result, self.data)
@@ -99,7 +99,7 @@ class TestResult(TestScore):
         assert_that(result,
                     has_property('completion', is_(True)))
         assert_that(result,
-                    has_property('duration', 
+                    has_property('duration',
                                  is_(isodate.parse_duration('PT1234S'))))
         self.validate_score(result.score)
 

@@ -85,8 +85,8 @@ class ILanguageMap(IMapping, IXAPIBase):
     A mapping from language tag to display string. The keys and values are both
     strings.
 
-    A language map is a dictionary where the key is a RFC 5646 Language Tag, 
-    and the value is a string in the language specified in the tag. This map 
+    A language map is a dictionary where the key is a RFC 5646 Language Tag,
+    and the value is a string in the language specified in the tag. This map
     SHOULD be populated as fully as possible based on the knowledge of the string in
     question in different languages.
 
@@ -129,7 +129,7 @@ class IAgentAccount(IXAPIBase):
 
 class IIFIEntity(interface.Interface):
     """
-    An Entity identified by an Inverse Functional Identifier (IFI) is a value of an Agent or Identified Group 
+    An Entity identified by an Inverse Functional Identifier (IFI) is a value of an Agent or Identified Group
     that is guaranteed to only ever refer to that Agent or Identified Group.
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2423-inverse-functional-identifier
@@ -178,7 +178,7 @@ class IGroup(INamedEntity):
 
 class IAnonymousGroup(IGroup):
     """
-    An Anonymous Group is used to describe a cluster of people where there is no 
+    An Anonymous Group is used to describe a cluster of people where there is no
     ready identifier for this cluster, e.g. an ad hoc team.
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#description-3
@@ -217,9 +217,9 @@ class IVerb(IXAPIBase):
 
 class IActivityInteraction(IXAPIBase):
     """
-    Traditional e-learning has included structures for interactions or assessments. 
-    As a way to allow these practices and structures to extend Experience API's utility, 
-    this specification includes built-in definitions for interactions, 
+    Traditional e-learning has included structures for interactions or assessments.
+    As a way to allow these practices and structures to extend Experience API's utility,
+    this specification includes built-in definitions for interactions,
     which borrows from the SCORM 2004 4th Edition Data Model.
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#interaction-activities
@@ -277,8 +277,8 @@ class IActivity(IXAPIBase):
 class IStatementRef(IXAPIBase):
     """
     A Statement Reference is a pointer to another pre-existing Statement.
-    A common use case for Statement References is grading or commenting on an experience 
-    that could be tracked as an independent event. The special case of 
+    A common use case for Statement References is grading or commenting on an experience
+    that could be tracked as an independent event. The special case of
     voiding a Statement would also use a Statement Reference.
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#description-8
@@ -291,14 +291,14 @@ class IStatementRef(IXAPIBase):
 
 class IContextActivities(IXAPIBase):
     """
-    Many Statements do not just involve one (Object) Activity that is the focus, 
+    Many Statements do not just involve one (Object) Activity that is the focus,
     but relate to other contextually relevant Activities. The `IContextActivities` object
     property allow for these related Activities to be represented in a structured manner.
 
-    The values in this object are not for expressing all the relationships the Statement Object has. 
+    The values in this object are not for expressing all the relationships the Statement Object has.
     Instead, they are for expressing relationships appropriate for the specific Statement
     (though the nature of the Object will often be important in determining that).
-    For instance, it is appropriate in a Statement about a test to include the course the test 
+    For instance, it is appropriate in a Statement about a test to include the course the test
     is part of as a "parent", but not to include every possible degree
     program the course could be part of in the grouping value.
 
@@ -326,7 +326,7 @@ class IContext(IXAPIBase):
     """
     The "context" provides a place to add some contextual information to a Statement.
     It can store information such as the instructor for an experience,
-    if this experience happened as part of a team-based Activity, 
+    if this experience happened as part of a team-based Activity,
     or how an experience fits into some broader activity.
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#246-context
@@ -372,8 +372,8 @@ class IContext(IXAPIBase):
 class IAttachment(IXAPIBase):
     """
     In some cases an Attachment is logically an important part of a Learning Record.
-    It could be an essay, a video, etc. Another example of such an Attachment is (the image of) 
-    a certificate that was granted as a result of an experience. 
+    It could be an essay, a video, etc. Another example of such an Attachment is (the image of)
+    a certificate that was granted as a result of an experience.
     It is useful to have a way to store these Attachments in and retrieve them from an LRS.
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2411-attachments
@@ -490,10 +490,10 @@ class IStatementBase(IXAPIBase):
 
 class ISubStatement(IStatementBase):
     """
-    A SubStatement is like a StatementRef in that it is included as 
-    part of a containing Statement, but unlike a StatementRef, it does not 
-    represent an event that has occurred. It can be used to describe, for example, 
-    a predication of a potential future Statement or the behavior a teacher 
+    A SubStatement is like a StatementRef in that it is included as
+    part of a containing Statement, but unlike a StatementRef, it does not
+    represent an event that has occurred. It can be used to describe, for example,
+    a predication of a potential future Statement or the behavior a teacher
     looked for when evaluating a student (without representing the student actually doing that behavior).
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#substatements
@@ -508,11 +508,11 @@ class ISubStatement(IStatementBase):
 
 class IStatement(IStatementBase):
     """
-    Statements are the evidence for any sort of experience or event which 
-    is to be tracked in xAPI. While Statements follow a machine readable JSON format, 
-    they can also easily be described using natural language. 
-    This can be extremely useful for the design process. Statements are meant to 
-    be aggregated and analyzed to provide larger meaning for the overall experience 
+    Statements are the evidence for any sort of experience or event which
+    is to be tracked in xAPI. While Statements follow a machine readable JSON format,
+    they can also easily be described using natural language.
+    This can be extremely useful for the design process. Statements are meant to
+    be aggregated and analyzed to provide larger meaning for the overall experience
     than just the sum of its parts.
 
     See also: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#statements
@@ -627,7 +627,7 @@ class ILRSClient(interface.Interface):
 
         :param query: Dictionary of query parameters and their values
         :type query: dict
-        :return: The returned StatementsResult object 
+        :return: The returned StatementsResult object
         :rtype: :class:`nti.xapi.interfaces.IStatementResult`
 
         .. note::
@@ -696,7 +696,7 @@ class ILRSClient(interface.Interface):
         :param state_id: UUID of desired state
         :type state_id: str
         :param registration: registration UUID of desired state
-        :type registration: str 
+        :type registration: str
         :return: State document
         :rtype: :class:`nti.xapi.document.interfaces.IStateDocument`
         """
@@ -743,7 +743,7 @@ class ILRSClient(interface.Interface):
         :param activity: Activity object of desired activity profiles
         :type activity: :class:`nti.xapi.interfaces.IActivity`
         :param since: Retrieve activity profile id's since this time
-        :type since: str 
+        :type since: str
         :return: List of retrieved activity profile ids
         """
 
@@ -758,7 +758,7 @@ class ILRSClient(interface.Interface):
         :return: Activity profile doc
         :rtype: :class:`nti.xapi.interfaces.IActivityProfileDocument`
         """
-    
+
     def save_activity_profile(profile):
         """
         Save an activity profile doc to the LRS
@@ -780,7 +780,7 @@ class ILRSClient(interface.Interface):
         """
 
     # agent profiles
-    
+
     def retrieve_agent_profile_ids(agent, since=None):
         """
         Retrieve agent profile id(s) with the specified parameters
@@ -791,7 +791,7 @@ class ILRSClient(interface.Interface):
         :type since: str
         :return: List of retrieved agent profile ids
         """
-    
+
     def retrieve_agent_profile(agent, profile_id):
         """
         Retrieve agent profile with the specified parameters
@@ -803,7 +803,7 @@ class ILRSClient(interface.Interface):
         :return: An agent profile document
         :rtype: :class:`nti.xapi.interfaces.IAgentProfileDocument`
         """
-    
+
     def save_agent_profile(profile):
         """
         Save an agent profile doc to the LRS

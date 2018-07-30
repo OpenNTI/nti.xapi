@@ -25,7 +25,7 @@ from . import SharedConfiguringTestLayer
 from ..interfaces import IAttachment
 
 from ..attachment import Attachment
-       
+
 class TestAttachment(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
