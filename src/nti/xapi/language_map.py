@@ -27,6 +27,8 @@ def _check_lang_value(value):
 @interface.implementer(ILanguageMap)
 class LanguageMap(dict):
 
+    __external_can_create__ = True
+
     def __init__(self, *args, **kwargs):
         """
         Initializes a LanguageMap with the given mapping

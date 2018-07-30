@@ -22,14 +22,9 @@ from nti.xapi.interfaces import IVerb
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(dict)
-@interface.implementer(IVerb)
-def _verb_factory(ext):
-    verb = Verb()
-    update_from_external_object(verb, ext)
-    return verb
-
-
 @interface.implementer(IVerb)
 class Verb(SchemaConfigured):
+
+    __external_can_create__ = True
+    
     createDirectFieldProperties(IVerb)

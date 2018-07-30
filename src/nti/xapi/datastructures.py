@@ -60,9 +60,11 @@ class XAPIBaseIO(InterfaceObjectIO):
         ext = super(XAPIBaseIO, self).toExternalObject(*args, **kwargs)
         ext.pop(CLASS, None)
         # set object type
-        object_type = getattr(self._ext_self, 'objectType', None)
-        if object_type is not None:
-            ext['objectType'] = object_type
+        try:
+            ext['objectType'] = self._ext_getattr(self._ext_replacement(), 'objectType')
+        except AttributeError:
+            pass
+        
         # pop empty values
         if self._ext_pop_none:
             for k in list(ext.keys()):

@@ -1,7 +1,8 @@
 <!-- -*- mode: nxml -*- -->
 <configure  xmlns="http://namespaces.zope.org/zope"
             xmlns:i18n="http://namespaces.zope.org/i18n"
-            xmlns:zcml="http://namespaces.zope.org/zcml">
+            xmlns:zcml="http://namespaces.zope.org/zcml"
+	    xmlns:ext="http://nextthought.com/ntp/ext">
 
 	<include package="zope.security" file="meta.zcml" />
 	<include package="zope.component" file="meta.zcml" />
@@ -9,98 +10,192 @@
 	<include package="zope.security" />
 
 	<include package="nti.externalization" />
+	<include package="nti.externalization" file="meta.zcml"/>
 
 	<adapter factory=".datastructures.XAPIBaseIO"
 			 for=".interfaces.IXAPIBase"
-			 provides="nti.externalization.interfaces.IInternalObjectIO" />
+			 provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
 
 	<adapter factory=".language_map.LanguageMapIO"
 			 for=".interfaces.ILanguageMap"
-			 provides="nti.externalization.interfaces.IInternalObjectIO" />
+			 provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
 
 	<adapter factory=".extensions.ExtensionsIO"
 			 for=".interfaces.IExtensions"
-			 provides="nti.externalization.interfaces.IInternalObjectIO" />
-
-	<adapter factory=".language_map.LanguageMap"
-			 for="dict"
-			 provides=".interfaces.ILanguageMap" />
+			 provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
     
-	<adapter factory=".extensions.Extensions"
-			 for="dict"
-			 provides=".interfaces.IExtensions" />
+	<ext:anonymousObjectFactory
+                factory=".extensions.Extensions"
+                for=".interfaces.IAbout"
+                field="extensions"/>
 
-	<adapter factory=".entities._account_factory"
-			 for="dict"
-			 provides=".interfaces.IAgentAccount" />
+	<ext:anonymousObjectFactory
+                factory=".entities.AgentAccount"
+                for=".interfaces.IIFIEntity"
+                field="account"/>
 
-	<adapter factory=".entities._agent_factory"
-			 for="dict"
-			 provides=".interfaces.IAgent" />
+	<ext:anonymousObjectFactory
+                factory=".entities.Agent"
+                for=".interfaces.IAnonymousGroup"
+                field="member"/>
 
-	<adapter factory=".entities._entity_factory"
-			 for="dict"
-			 provides=".interfaces.INamedEntity" />
+	<ext:anonymousObjectFactory
+                factory=".entities.Agent"
+                for=".interfaces.IIdentifiedGroup"
+                field="member"/>
 
-	<adapter factory=".entities._group_factory"
-			 for="dict"
-			 provides=".interfaces.IGroup" />
+	<ext:anonymousObjectFactory
+                factory=".language_map.LanguageMap"
+                for=".interfaces.IVerb"
+                field="display"/>
 
-	<adapter factory=".verb._verb_factory"
-			 for="dict"
-			 provides=".interfaces.IVerb" />
+	<ext:anonymousObjectFactory
+                factory=".language_map.LanguageMap"
+                for=".interfaces.IActivityDefinition"
+                field="name"/>
 
-	<adapter factory=".activity._activity_definition_factory"
-			 for="dict"
-			 provides=".interfaces.IActivityDefinition" />
+	<ext:anonymousObjectFactory
+                factory=".language_map.LanguageMap"
+                for=".interfaces.IActivityDefinition"
+                field="description"/>
 
-     <adapter factory=".activity._activity_factory"
-			  for="dict"
-			  provides=".interfaces.IActivity" />
+	<ext:anonymousObjectFactory
+                factory=".extensions.Extensions"
+                for=".interfaces.IActivityDefinition"
+                field="extensions"/>
+	
+	<ext:anonymousObjectFactory
+                factory=".activity.ActivityDefinition"
+                for=".interfaces.IActivity"
+                field="definition"/>
 
- 	<adapter factory=".context._context_activity_factory"
-			 for="dict"
-			 provides=".interfaces.IContextActivities" />
+	<ext:anonymousObjectFactory
+                factory=".activity.Activity"
+                for=".interfaces.IContextActivities"
+                field="parent"/>
 
-	<adapter factory=".context._context_factory"
-			 for="dict"
-			 provides=".interfaces.IContext" />
+	<ext:anonymousObjectFactory
+                factory=".activity.Activity"
+                for=".interfaces.IContextActivities"
+                field="grouping"/>
 
-	<adapter factory=".result._score_factory"
-			 for="dict"
-			 provides=".interfaces.IScore" />
+	<ext:anonymousObjectFactory
+                factory=".activity.Activity"
+                for=".interfaces.IContextActivities"
+                field="category"/>
 
-	<adapter factory=".result._result_factory"
-			 for="dict"
-			 provides=".interfaces.IResult" />
+	<ext:anonymousObjectFactory
+                factory=".activity.Activity"
+                for=".interfaces.IContextActivities"
+                field="other"/>
 
-	<adapter factory=".attachment._attachment_factory"
-			 for="dict"
-			 provides=".interfaces.IAttachment" />
+	<ext:anonymousObjectFactory
+                factory=".entities._entity_factory"
+                for=".interfaces.IContext"
+		pass_external_object_to_factory="True"
+		trusted="True"
+                field="instructor"/>
 
-     <adapter factory=".result.ResultIO"
+	<ext:anonymousObjectFactory
+                factory=".entities._group_factory"
+                for=".interfaces.IContext"
+		pass_external_object_to_factory="True"
+		trusted="True"
+                field="team"/>
+
+	<ext:anonymousObjectFactory
+                factory=".context.ContextActivities"
+                for=".interfaces.IContext"
+                field="contextActivities"/>
+
+	<ext:anonymousObjectFactory
+                factory=".statement.StatementRef"
+                for=".interfaces.IContext"
+                field="statement"/>
+
+	<ext:anonymousObjectFactory
+                factory=".extensions.Extensions"
+                for=".interfaces.IContext"
+                field="extensions"/>
+	
+	<ext:anonymousObjectFactory
+                factory=".language_map.LanguageMap"
+                for=".interfaces.IAttachment"
+                field="display"/>
+
+	<ext:anonymousObjectFactory
+                factory=".language_map.LanguageMap"
+                for=".interfaces.IAttachment"
+                field="description"/>
+
+	<ext:anonymousObjectFactory
+                factory=".result.Score"
+                for=".interfaces.IResult"
+                field="score"/>
+
+	<ext:anonymousObjectFactory
+                factory=".extensions.Extensions"
+                for=".interfaces.IResult"
+                field="extensions"/>
+
+	<ext:anonymousObjectFactory
+                factory=".entities._entity_factory"
+                for=".interfaces.IStatementBase"
+		pass_external_object_to_factory="True"
+		trusted="True"
+                field="actor"/>
+
+	<ext:anonymousObjectFactory
+                factory=".verb.Verb"
+                for=".interfaces.IStatementBase"
+                field="verb"/>
+
+	<ext:anonymousObjectFactory
+                factory=".context.Context"
+                for=".interfaces.IStatementBase"
+                field="context"/>
+
+	<ext:anonymousObjectFactory
+                factory=".attachment.Attachment"
+                for=".interfaces.IStatementBase"
+                field="attachments"/>
+
+	<ext:anonymousObjectFactory
+                factory=".statement._statement_object_factory"
+                for=".interfaces.IStatement"
+		pass_external_object_to_factory="True"
+		trusted="True"
+                field="object"/>
+
+	<ext:anonymousObjectFactory
+                factory=".statement._statement_object_factory"
+                for=".interfaces.ISubStatement"
+		pass_external_object_to_factory="True"
+		trusted="True"
+                field="object"/>
+
+	<ext:anonymousObjectFactory
+                factory=".result.Result"
+                for=".interfaces.IStatement"
+                field="result"/>
+
+	<ext:anonymousObjectFactory
+                factory=".entities._entity_factory"
+                for=".interfaces.IStatement"
+		pass_external_object_to_factory="True"
+		trusted="True"
+                field="authority"/>
+
+	<ext:anonymousObjectFactory
+                factory=".statement.Statement"
+                for=".interfaces.IStatementList"
+                field="statements"/>
+
+	<adapter factory=".result.ResultIO"
 			  for=".interfaces.IResult"
-			  provides="nti.externalization.interfaces.IInternalObjectIO" />
+			  provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
 
-	<adapter factory=".statement._statement_ref_factory"
-			 for="dict"
-			 provides=".interfaces.IStatementRef" />
-
- 	<adapter factory=".statement._sub_statement_factory"
-			 for="dict"
-			 provides=".interfaces.ISubStatement" />
-
-	<adapter factory=".statement._statement_factory"
-			 for="dict"
-			 provides=".interfaces.IStatement" />
-
-	<adapter factory=".statement._statement_result_factory"
-			 for="dict"
-			 provides=".interfaces.IStatementResult" />
-
-	<adapter factory=".statement.StatementIO"
-			 for=".interfaces.IStatementBase"
-			 provides="nti.externalization.interfaces.IInternalObjectIO" />
+	
 
 	<include package="." file="meta.zcml" />
 

@@ -38,7 +38,9 @@ from nti.xapi.interfaces import Version
 from nti.xapi.interfaces import IActivity
 from nti.xapi.interfaces import ILRSClient
 from nti.xapi.interfaces import IStatement
-from nti.xapi.interfaces import IStatementResult
+
+from nti.xapi.statement import Statement
+from nti.xapi.statement import StatementResult
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -234,12 +236,16 @@ class LRSClient(object):
 
     def read_statement(self, data):
         data = json.loads(data, "utf-8")
-        return IStatement(data)
+        stmt = Statement()
+        update_from_external_object(stmt, data)
+        return stmt
 
     def read_statement_result(self, data):
         data = json.loads(data, "utf-8")
-        return IStatementResult(data)
-
+        result = StatementResult()
+        update_from_external_object(result, data)
+        return result
+        
     # states
 
     def retrieve_state_ids(self, activity, agent, registration=None, since=None):

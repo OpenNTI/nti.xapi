@@ -34,21 +34,26 @@ class TestVerb(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-
-        self.data = {
+    @property
+    def data(self):
+        return {
             "id": "http://adlnet.gov/expapi/verbs/voided",
             "display": {
                 "en-US": "voided"
             }
         }
 
+    def setUp(self):
+        self.verb = Verb()
+        update_from_external_object(self.verb, self.data)
+
     def test_bad(self):
         with self.assertRaises(ValidationError):
-            IVerb({'id': 'foio', 'display': 1})
+            verb = Verb()
+            update_from_external_object(verb, {'id': 'foio', 'display': 1})
 
     def test_creation(self):
-        verb = IVerb(self.data)
+        verb = self.verb
         assert_that(verb, verifiably_provides(IVerb))
         assert_that(verb,
                     has_property('id', is_('http://adlnet.gov/expapi/verbs/voided')))
@@ -58,12 +63,11 @@ class TestVerb(unittest.TestCase):
                     has_property('display', has_entry('en-US', 'voided')))
 
     def test_externalization(self):
-        verb = IVerb(self.data)
+        verb = self.verb
         assert_that(to_external_object(verb), is_(self.data))
 
     def test_internalization(self):
-        verb = Verb()
-        update_from_external_object(verb, self.data)
+        verb = self.verb
         assert_that(verb,
                     has_property('id', is_('http://adlnet.gov/expapi/verbs/voided')))
         assert_that(verb,

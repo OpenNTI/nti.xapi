@@ -23,29 +23,20 @@ from nti.xapi.interfaces import IActivityDefinition
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(dict)
-@interface.implementer(IActivityDefinition)
-def _activity_definition_factory(ext):
-    activity_def = ActivityDefinition()
-    update_from_external_object(activity_def, ext)
-    return activity_def
-
 
 @interface.implementer(IActivityDefinition)
 class ActivityDefinition(SchemaConfigured):
+
+    __external_can_create__ = True
+    
     createDirectFieldProperties(IActivityDefinition)
-
-
-@component.adapter(dict)
-@interface.implementer(IActivity)
-def _activity_factory(ext):
-    activity = Activity()
-    update_from_external_object(activity, ext)
-    return activity
 
 
 @interface.implementer(IActivity)
 class Activity(SchemaConfigured):
+    
     createDirectFieldProperties(IActivity)
+
+    __external_can_create__ = True
 
     objectType = 'Activity'

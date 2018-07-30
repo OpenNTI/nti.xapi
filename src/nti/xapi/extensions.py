@@ -29,6 +29,8 @@ def _check_key(ext, key):
 @interface.implementer(IExtensions)
 class Extensions(dict):
 
+    __external_can_create__ = True
+
     def __init__(self, *args, **kwargs):
         check_args = dict(*args, **kwargs)
         # validate values

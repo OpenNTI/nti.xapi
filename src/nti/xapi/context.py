@@ -23,27 +23,18 @@ from nti.xapi.interfaces import IContextActivities
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(dict)
-@interface.implementer(IContextActivities)
-def _context_activity_factory(ext):
-    cas = ContextActivities()
-    update_from_external_object(cas, ext)
-    return cas
-
 
 @interface.implementer(IContextActivities)
 class ContextActivities(SchemaConfigured):
+
+    __external_can_create__ = True
+    
     createDirectFieldProperties(IContextActivities)
-
-
-@component.adapter(dict)
-@interface.implementer(IContext)
-def _context_factory(ext):
-    context = Context()
-    update_from_external_object(context, ext)
-    return context
 
 
 @interface.implementer(IContext)
 class Context(SchemaConfigured):
+
+    __external_can_create__ = True
+    
     createDirectFieldProperties(IContext)

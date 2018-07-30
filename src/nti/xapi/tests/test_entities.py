@@ -34,6 +34,8 @@ from ..interfaces import INamedEntity
 
 from ..entities import Agent
 from ..entities import AgentAccount
+from ..entities import _group_factory
+from ..entities import _entity_factory
 
 class TestAgentAccount(unittest.TestCase):
 
@@ -68,12 +70,13 @@ class TestAgentAccountIO(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
-		"homePage": "http://www.example.com",
-		"name": "1625378"
-	}
-
+    @property
+    def data(self):
+        return {
+            "homePage": "http://www.example.com",
+            "name": "1625378"
+        }
+    
     def test_to_external_object(self):
         account = AgentAccount(**self.data)
         assert_that(to_external_object(account), self.data)
@@ -84,10 +87,6 @@ class TestAgentAccountIO(unittest.TestCase):
 
         assert_that(account.name, is_(self.data['name']))
         assert_that(account.homePage, is_(self.data['homePage']))
-
-    def test_adapts_from_dict(self):
-        account = IAgentAccount(self.data)
-        assert_that(to_external_object(account), is_(self.data))
         
 
 class TestAgent(unittest.TestCase):
@@ -133,23 +132,27 @@ class TestAgentIO(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.basic_agent = { 
-		"objectType": "Agent", 
-		"mbox":"mailto:test@example.com" 
-	}
+    @property
+    def basic_agent(self):
+        return { 
+	    "objectType": "Agent", 
+	    "mbox":"mailto:test@example.com" 
+        }
 
-        self.account_agent = {
+    @property
+    def account_agent(self):
+        return {
 	    "objectType": "Agent",
 	    "account": {
-		"homePage": "http://www.example.com",
-		"name": "1625378"
+	        "homePage": "http://www.example.com",
+	        "name": "1625378"
 	    }
         }
 
 
     def test_basic_external(self):
-        agent = IAgent(self.basic_agent)
+        agent = Agent()
+        update_from_external_object(agent, self.basic_agent)
         assert_that(to_external_object(agent), is_(self.basic_agent))
 
     def test_basic_internalization(self):
@@ -158,7 +161,8 @@ class TestAgentIO(unittest.TestCase):
         assert_that(agent.mbox, is_(self.basic_agent['mbox']))
 
     def test_nested_externaliation(self):
-        agent = IAgent(self.account_agent)
+        agent = Agent()
+        update_from_external_object(agent, self.account_agent)
         assert_that(to_external_object(agent), is_(self.account_agent))
 
     def test_nested_internalization(self):
@@ -170,7 +174,8 @@ class TestAgentIO(unittest.TestCase):
         assert_that(agent.account.homePage, is_('http://www.example.com'))
 
     def test_as_entity(self):
-        agent = INamedEntity(self.basic_agent)
+        agent = _entity_factory(self.basic_agent)
+        update_from_external_object(agent, self.basic_agent)
         assert_that(agent, verifiably_provides(IAgent))
         assert_that(to_external_object(agent), is_(self.basic_agent))
 
@@ -179,9 +184,9 @@ class TestGroup(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-
-        self.identified_group = {
+    @property
+    def identified_group(self):
+        return {
             "name": "Team PB",
             "mbox": "mailto:teampb@example.com",
             "member": [
@@ -206,8 +211,11 @@ class TestGroup(unittest.TestCase):
             ],
             "objectType": "Group"
         }
+    
+    @property
+    def anon_group(self):
 
-        self.anon_group = {
+        return {
 	    "objectType" : "Group",
 	    "member": [
 		{
@@ -224,22 +232,29 @@ class TestGroup(unittest.TestCase):
 	    ]
         }
 
+       
+
     def test_as_group(self):
-        ig = IGroup(self.identified_group)
+        ig = _group_factory(self.identified_group)
+        update_from_external_object(ig, self.identified_group)
         assert_that(ig, verifiably_provides(IIdentifiedGroup))
 
-        ag = IGroup(self.anon_group)
+        ag = _group_factory(self.anon_group)
+        update_from_external_object(ig, self.identified_group)
         assert_that(ag, verifiably_provides(IAnonymousGroup))
 
     def test_as_entity(self):
-        ig = INamedEntity(self.identified_group)
+        ig = _entity_factory(self.identified_group)
+        update_from_external_object(ig, self.identified_group)
         assert_that(ig, verifiably_provides(IIdentifiedGroup))
 
-        ag = INamedEntity(self.anon_group)
+        ag = _entity_factory(self.anon_group)
+        update_from_external_object(ig, self.identified_group)
         assert_that(ag, verifiably_provides(IAnonymousGroup))
 
     def test_identified_io(self):
-        ig = INamedEntity(self.identified_group)
+        ig = _entity_factory(self.identified_group)
+        update_from_external_object(ig, self.identified_group)
         assert_that(to_external_object(ig), is_(self.identified_group))
 
         assert_that(ig.name, is_(self.identified_group['name']))
@@ -252,7 +267,8 @@ class TestGroup(unittest.TestCase):
         assert_that(ig.member[0].name, is_('Andrew Downes'))
 
     def test_anonymous_io(self):
-        ag = INamedEntity(self.anon_group)
+        ag = _entity_factory(self.anon_group)
+        update_from_external_object(ag, self.anon_group)
         assert_that(to_external_object(ag), is_(self.anon_group))
 
         assert_that(ag.name, is_(none()))

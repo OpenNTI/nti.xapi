@@ -30,9 +30,9 @@ class TestAttachment(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-
-        self.data = {
+    @property
+    def data(self):
+        return {
             "usageType": "http://adlnet.gov/expapi/attachments/signature",
             "display": { "en-US": "Signature" },
             "description": { "en-US": "A test signature" },
@@ -41,7 +41,9 @@ class TestAttachment(unittest.TestCase):
             "sha2": "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
         }
 
-        self.attachment = IAttachment(self.data)
+    def setUp(self):
+        self.attachment = Attachment()
+        update_from_external_object(self.attachment, self.data)
 
     def validate_attachment(self, attachment):
         assert_that(attachment, verifiably_provides(IAttachment))

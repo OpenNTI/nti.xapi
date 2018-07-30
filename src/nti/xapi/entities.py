@@ -31,16 +31,11 @@ from nti.xapi.interfaces import IIdentifiedGroup
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(dict)
-@interface.implementer(IAgentAccount)
-def _account_factory(ext):
-    account = AgentAccount()
-    update_from_external_object(account, ext)
-    return account
-
-
 @interface.implementer(IAgentAccount)
 class AgentAccount(SchemaConfigured):
+
+    __external_can_create__ = True
+    
     createDirectFieldProperties(IAgentAccount)
 
 
@@ -48,16 +43,11 @@ class IFIMixin(object):
     pass
 
 
-@component.adapter(dict)
-@interface.implementer(IAgent)
-def _agent_factory(ext):
-    agent = Agent()
-    update_from_external_object(agent, ext)
-    return agent
-
-
 @interface.implementer(IAgent)
 class Agent(SchemaConfigured, IFIMixin):
+
+    __external_can_create__ = True
+
     createFieldProperties(IAgent)
 
     objectType = 'Agent'
@@ -71,18 +61,17 @@ def _is_ifientity(ext):
     return False
 
 
-@component.adapter(dict)
-@interface.implementer(IGroup)
 def _group_factory(ext):
     factory = AnonymousGroup
     if _is_ifientity(ext):
         factory = IdentifiedGroup
-    group = factory()
-    update_from_external_object(group, ext)
-    return group
+    return factory()
 
 
 class GroupBase(object):
+
+    __external_can_create__ = True
+    
     objectType = 'Group'
 
 
@@ -96,15 +85,14 @@ class IdentifiedGroup(GroupBase, SchemaConfigured, IFIMixin):
     createFieldProperties(IIdentifiedGroup)
 
 
-ENTITY_IFACE_MAP = {
-    'Agent': IAgent,
-    'Group': IGroup
+# Callables returning a factory for the external value
+ENTITY_FACTORIES = {
+    'Agent': lambda x: Agent(),
+    'Group': _group_factory
 }
 
 
-@component.adapter(dict)
-@interface.implementer(INamedEntity)
 def _entity_factory(ext):
-    object_type = ext.get('objectType', None)
-    if object_type in ENTITY_IFACE_MAP:
-        return ENTITY_IFACE_MAP[object_type](ext)
+    object_type = ext.get('objectType', 'Agent')
+    if object_type in ENTITY_FACTORIES:
+        return ENTITY_FACTORIES[object_type](ext)

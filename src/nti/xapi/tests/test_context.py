@@ -40,9 +40,9 @@ class TestContextActivities(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-
-        self.data = {
+    @property
+    def data(self):
+        return {
             "parent": [
                 {
                     "id": "http://www.example.com/meetings/series/267",
@@ -76,7 +76,9 @@ class TestContextActivities(unittest.TestCase):
             ]
         }
 
-        self.ca = IContextActivities(self.data)
+    def setUp(self):
+        self.ca = ContextActivities()
+        update_from_external_object(self.ca, self.data)
 
     def validate_context_activities(self, ca):
         assert_that(ca, verifiably_provides(IContextActivities))
@@ -106,8 +108,9 @@ class TestContext(TestContextActivities):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
+    @property
+    def data(self):
+        return {
             "registration": "ec531277-b57b-4c15-8d91-d292c5b2b8f7",
             "contextActivities": {
                 "parent": [
@@ -161,7 +164,10 @@ class TestContext(TestContextActivities):
             "language" : "tlh"
             
     }
-        self.context = IContext(self.data)
+
+    def setUp(self):
+        self.context = Context()
+        update_from_external_object(self.context, self.data)
 
     def validate_context(self, context):
         assert_that(context, verifiably_provides(IContext))

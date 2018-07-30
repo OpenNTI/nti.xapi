@@ -33,8 +33,10 @@ from nti.xapi.interfaces import IStatementRef
 from nti.xapi.interfaces import ISubStatement
 from nti.xapi.interfaces import IStatementResult
 
+from nti.xapi.statement import Statement
 from nti.xapi.statement import StatementRef
 from nti.xapi.statement import SubStatement
+from nti.xapi.statement import StatementResult
 
 from nti.xapi.tests import SharedConfiguringTestLayer
 
@@ -43,12 +45,16 @@ class TestStatementRef(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
+    @property
+    def data(self):
+        return {
             "objectType": "StatementRef",
             "id": "e05aa883-acaf-40ad-bf54-02c8ce485fb0"
         }
-        self.ref = IStatementRef(self.data)
+
+    def setUp(self):
+        self.ref = StatementRef()
+        update_from_external_object(self.ref, self.data)
 
     def validate_statement_ref(self, ref):
         assert_that(ref, verifiably_provides(IStatementRef))
@@ -71,8 +77,9 @@ class TestStatement(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
+    @property
+    def data(self):
+        return {
             "id": "7ccd3322-e1a5-411a-a67d-6a735c76f119",
             "timestamp": "2015-12-18T12:17:00+00:00",
             "actor": {
@@ -115,7 +122,9 @@ class TestStatement(unittest.TestCase):
             }]
         }
 
-        self.statement = IStatement(dict(self.data))
+    def setUp(self):
+        self.statement = Statement()
+        update_from_external_object(self.statement, self.data)
 
     def validate_statement(self, statement):
         assert_that(statement, verifiably_provides(IStatement))
@@ -133,9 +142,10 @@ class TestStatement(unittest.TestCase):
                     has_entries('id', '7ccd3322-e1a5-411a-a67d-6a735c76f119'))
 
     def test_timestamp_optional(self):
-        d = dict(self.data)
+        d = self.data
         d.pop('timestamp')
-        stmt = IStatement(d)
+        stmt = Statement()
+        update_from_external_object(stmt, d)
         assert_that(stmt, verifiably_provides(IStatement))
 
     def test_ambiguous_actor(self):
@@ -163,7 +173,8 @@ class TestStatement(unittest.TestCase):
                 }
             }
         }
-        stmt = IStatement(stmt_data)
+        stmt = Statement()
+        update_from_external_object(stmt, stmt_data)
         assert_that(stmt.actor, verifiably_provides(IAgent))
 
     def test_no_object_type(self):
@@ -173,8 +184,9 @@ class TestSubStatement(TestStatement):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
+    @property
+    def data(self):
+        return {
             "timestamp": "2015-12-18T12:17:00Z",
             "actor": {
                 "objectType": "Agent",
@@ -199,7 +211,10 @@ class TestSubStatement(TestStatement):
                 }
             }
         }
-        self.statement = ISubStatement(dict(self.data))
+
+    def setUp(self):
+        self.statement = SubStatement()
+        update_from_external_object(self.statement, self.data)
 
     def validate_statement(self, statement):
         assert_that(statement, verifiably_provides(ISubStatement))
@@ -223,8 +238,9 @@ class TestStatementResult(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        statement = {
+    @property
+    def statement(self):
+        return {
             "id": "7ccd3322-e1a5-411a-a67d-6a735c76f119",
             "timestamp": "2015-12-18T12:17:00+00:00",
             "actor": {
@@ -258,13 +274,17 @@ class TestStatementResult(unittest.TestCase):
                 "sha2": "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
             }]
         }
-        self.data = {
-            "statements": [statement],
+
+    @property
+    def data(self):
+        return {
+            "statements": [self.statement],
             "more": "more/1234"
         }
-        
+
     def test_result(self):
-        result = IStatementResult(self.data, None)
+        result = StatementResult()
+        update_from_external_object(result, self.data)
         assert_that(result, is_not(none()))
         assert_that(list(result), has_length(1))
         assert_that(result, has_property('more', "more/1234"))
