@@ -19,7 +19,7 @@ from zope import interface
 
 from zope.interface.common.idatetime import IDateTime
 
-from nti.externalization.externalization import to_external_object
+from nti.externalization import to_external_object
 
 from nti.externalization import update_from_external_object
 
