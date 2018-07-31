@@ -13,16 +13,16 @@
 	<include package="nti.externalization" file="meta.zcml"/>
 
 	<adapter factory=".datastructures.XAPIBaseIO"
-			 for=".interfaces.IXAPIBase"
-			 provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
-
+		 for=".interfaces.IXAPIBase" />
+	
 	<adapter factory=".language_map.LanguageMapIO"
-			 for=".interfaces.ILanguageMap"
-			 provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
+		 for=".interfaces.ILanguageMap" />
 
 	<adapter factory=".extensions.ExtensionsIO"
-			 for=".interfaces.IExtensions"
-			 provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
+		 for=".interfaces.IExtensions" />
+
+	<adapter factory=".result.ResultIO"
+		 for=".interfaces.IResult" />
     
 	<ext:anonymousObjectFactory
 		factory=".extensions.Extensions"
@@ -191,9 +191,6 @@
 		for=".interfaces.IStatementList"
 		field="statements"/>
 
-	<adapter factory=".result.ResultIO"
-		 for=".interfaces.IResult"
-		 provides="nti.externalization.interfaces.IInternalObjectIOFinder" />
 
 	<include package="." file="meta.zcml" />
 
