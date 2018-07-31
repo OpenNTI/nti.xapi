@@ -10,6 +10,7 @@ from __future__ import absolute_import
 
 from zope import interface
 
+from nti.externalization.interfaces import IInternalObjectIO
 from nti.externalization.interfaces import IInternalObjectIOFinder
 
 from nti.externalization.datastructures import InterfaceObjectIO
@@ -27,7 +28,7 @@ NTIID = StandardExternalFields.NTIID
 logger = __import__('logging').getLogger(__name__)
 
 
-@interface.implementer(IInternalObjectIOFinder)
+@interface.implementer(IInternalObjectIO)
 class MappingIO(object):
 
     def __init__(self, context):
@@ -46,9 +47,6 @@ class MappingIO(object):
                 self.context[k] = parsed[k]
                 updated = True
         return updated
-
-    def find_factory_for_named_value(self, name, value, registry):
-        return None
 
 
 class XAPIBaseIO(InterfaceObjectIO):
