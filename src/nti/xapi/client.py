@@ -60,6 +60,9 @@ class LRSClient(object):
         :param password: Password for lrs. Used to build the authentication string.
         :type password: str
         """
+        if endpoint and not endpoint.endswith('/'):
+            endpoint = endpoint + '/'
+
         self.version = version
         self.endpoint = endpoint
         self.username = username

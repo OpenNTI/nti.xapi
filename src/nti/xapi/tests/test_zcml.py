@@ -37,8 +37,7 @@ class TestZcml(nti.testing.base.ConfiguringTestBase):
     def test_lrs(self):
         self.configure_string(LRS_ZCML_STRING)
         lrs_client = component.getUtility(ILRSClient)
-        assert_that(lrs_client, 
-					has_property('endpoint', 'http://nextthought.com/lrs'))
+        assert_that(lrs_client, has_property('endpoint', 'http://nextthought.com/lrs/'))
         assert_that(lrs_client, has_property('username', 'foo'))
         assert_that(lrs_client, has_property('password', 'bar'))
         assert_that(lrs_client, has_property('version', '1.0.3'))
