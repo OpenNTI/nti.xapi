@@ -9,10 +9,12 @@ from __future__ import absolute_import
 
 import os
 
+from hamcrest import calling
 from hamcrest import is_
 from hamcrest import none
 from hamcrest import is_not
 from hamcrest import assert_that
+from hamcrest import raises
 
 import codecs
 import unittest
@@ -46,6 +48,25 @@ class TestClient(unittest.TestCase):
         path = os.path.join(os.path.dirname(__file__),
                             "data", "about.json")
         return path
+
+    def test_client(self):
+        assert_that(LRSClient(None).endpoint, is_(None))
+        assert_that(LRSClient('').endpoint, is_(''))
+        assert_that(LRSClient('a').endpoint, is_('a/'))
+        assert_that(LRSClient('a/').endpoint, is_('a/'))
+
+        client = LRSClient(None)
+        assert_that(client.endpoint, is_(None))
+        assert_that(client.username, is_(None))
+        assert_that(client.password, is_(None))
+
+        client = LRSClient('a', username='test', password='pwd')
+        assert_that(client.endpoint, is_('a/'))
+        assert_that(client.username, is_('test'))
+        assert_that(client.password, is_('pwd'))
+
+        assert_that(calling(LRSClient).with_args(None, 'test', None), raises(AssertionError))
+        assert_that(calling(LRSClient).with_args(None, None, 'pwd'), raises(AssertionError))
 
     @fudge.patch('requests.Session.get',
                  'nti.xapi.client.update_from_external_object')
