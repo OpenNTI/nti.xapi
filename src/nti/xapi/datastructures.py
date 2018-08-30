@@ -10,12 +10,9 @@ from __future__ import absolute_import
 
 from zope import interface
 
-from nti.externalization.interfaces import IInternalObjectIO
-from nti.externalization.interfaces import IInternalObjectIOFinder
-
 from nti.externalization.datastructures import InterfaceObjectIO
-from nti.externalization.datastructures import ExternalizableInstanceDict
 
+from nti.externalization.interfaces import IInternalObjectIO
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.xapi.interfaces import IXAPIBase
