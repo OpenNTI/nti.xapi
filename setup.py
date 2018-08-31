@@ -54,7 +54,7 @@ setup(
     install_requires=[
         'setuptools',
         'isodate',
-        'nti.externalization',
+        'nti.externalization>=1.0.0a11',
         'nti.schema',
         'requests',
         'simplejson',

@@ -8,20 +8,17 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from zope import component
 from zope import interface
-
-from nti.externalization.internalization import update_from_external_object
 
 from nti.schema.fieldproperty import createDirectFieldProperties
 
 from nti.schema.schema import SchemaConfigured
 
-from nti.xapi.datastructures import XAPIBaseIO
+from nti.xapi.activity import Activity
 
-from nti.xapi.interfaces import IAgent
-from nti.xapi.interfaces import IGroup
-from nti.xapi.interfaces import IActivity
+from nti.xapi.entities import Agent
+from nti.xapi.entities import _group_factory
+
 from nti.xapi.interfaces import IStatement
 from nti.xapi.interfaces import IStatementRef
 from nti.xapi.interfaces import ISubStatement
@@ -31,16 +28,11 @@ from nti.xapi.interfaces import IStatementResult
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(dict)
-@interface.implementer(IStatementRef)
-def _statement_ref_factory(ext):
-    ref = StatementRef()
-    update_from_external_object(ref, ext)
-    return ref
-
-
 @interface.implementer(IStatementRef)
 class StatementRef(SchemaConfigured):
+
+    __external_can_create__ = True
+
     createDirectFieldProperties(IStatementRef)
 
     objectType = 'StatementRef'
@@ -48,47 +40,31 @@ class StatementRef(SchemaConfigured):
 
 @interface.implementer(IStatementBase)
 class StatementBase(object):
+
+    __external_can_create__ = True
+
     createDirectFieldProperties(IStatementBase)
-
-
-@component.adapter(dict)
-@interface.implementer(ISubStatement)
-def _sub_statement_factory(ext):
-    sub_stmt = SubStatement()
-    update_from_external_object(sub_stmt, ext)
-    return sub_stmt
 
 
 @interface.implementer(ISubStatement)
 class SubStatement(SchemaConfigured, StatementBase):
+
     createDirectFieldProperties(ISubStatement)
 
     objectType = 'SubStatement'
 
 
-@component.adapter(dict)
-@interface.implementer(IStatement)
-def _statement_factory(ext):
-    stmt = Statement()
-    update_from_external_object(stmt, ext)
-    return stmt
-
-
 @interface.implementer(IStatement)
 class Statement(SchemaConfigured, StatementBase):
+
     createDirectFieldProperties(IStatement)
-
-
-@component.adapter(dict)
-@interface.implementer(IStatementResult)
-def _statement_result_factory(ext):
-    result = StatementResult()
-    update_from_external_object(result, ext)
-    return result
 
 
 @interface.implementer(IStatementResult)
 class StatementResult(SchemaConfigured):
+
+    __external_can_create__ = True
+
     createDirectFieldProperties(IStatementResult)
 
     def __iter__(self):
@@ -96,29 +72,16 @@ class StatementResult(SchemaConfigured):
         return iter(self.statements or ())
 
 
-OBJECT_IFACE_MAP = {
-    'Agent': IAgent,
-    'Group': IGroup,
-    'Activity': IActivity,
-    'Statement': IStatement,
-    'StatementRef': IStatementRef,
-    'SubStatement': ISubStatement,
+OBJECT_FACTORIES = {
+    'Agent': lambda x: Agent(),
+    'Group': _group_factory,
+    'Activity': lambda x: Activity(),
+    'Statement': lambda x: Statement(),
+    'StatementRef': lambda x: StatementRef(),
+    'SubStatement': lambda x: SubStatement(),
 }
 
 
-class StatementIO(XAPIBaseIO):
-
-    def updateFromExternalObject(self, parsed, *args, **kwargs):  # pylint: disable: arguments-differ
-        modified = False
-        if 'object' in parsed:
-            obj = parsed.pop('object')
-            if obj is not None:
-                object_type = obj.get('objectType', 'Activity')
-                factory = OBJECT_IFACE_MAP.get(object_type, None)
-                obj = factory(obj) if factory else obj
-            self._ext_setattr(self._ext_self, 'object', obj)
-            modified = True
-        if 'actor' in parsed:
-            if 'objectType' not in parsed['actor']:
-                parsed['actor']['objectType'] = 'Agent'
-        return super(StatementIO, self).updateFromExternalObject(parsed, *args, **kwargs) or modified
+def _statement_object_factory(ext):
+    object_type = ext.get('objectType', 'Activity')
+    return OBJECT_FACTORIES.get(object_type, None)(ext)

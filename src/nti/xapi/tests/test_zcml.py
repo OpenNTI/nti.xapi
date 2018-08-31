@@ -22,11 +22,11 @@ LRS_ZCML_STRING = u"""
 	xmlns:xapi="http://nextthought.com/ntp/xapi"
 	i18n_domain='nti.dataserver'>
 	<include package="zope.component" />
-	
+
 	<include package="." file="meta.zcml" />
-	<xapi:registerLRSClient 
-				endpoint="http://nextthought.com/lrs" 
-				username="foo" 
+	<xapi:registerLRSClient
+				endpoint="http://nextthought.com/lrs"
+				username="foo"
 				password="bar" />
 </configure>
 """
@@ -37,7 +37,8 @@ class TestZcml(nti.testing.base.ConfiguringTestBase):
     def test_lrs(self):
         self.configure_string(LRS_ZCML_STRING)
         lrs_client = component.getUtility(ILRSClient)
-        assert_that(lrs_client, has_property('endpoint', 'http://nextthought.com/lrs/'))
+        assert_that(lrs_client,
+                    has_property('endpoint', 'http://nextthought.com/lrs/'))
         assert_that(lrs_client, has_property('username', 'foo'))
         assert_that(lrs_client, has_property('password', 'bar'))
         assert_that(lrs_client, has_property('version', '1.0.3'))

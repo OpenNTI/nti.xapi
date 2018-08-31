@@ -8,9 +8,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from nti.externalization.datastructures import InterfaceObjectIO
-from nti.externalization.datastructures import ExternalizableInstanceDict
+from zope import interface
 
+from nti.externalization.datastructures import InterfaceObjectIO
+
+from nti.externalization.interfaces import IInternalObjectIO
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.xapi.interfaces import IXAPIBase
@@ -23,29 +25,25 @@ NTIID = StandardExternalFields.NTIID
 logger = __import__('logging').getLogger(__name__)
 
 
-class MappingIO(ExternalizableInstanceDict):
+@interface.implementer(IInternalObjectIO)
+class MappingIO(object):
 
-    def __init__(self, replacement):
-        ExternalizableInstanceDict.__init__(self)
-        self._ext_self = replacement
-
-    def _ext_setattr(self, ext_self, k, v):  # pylint: disable: arguments-differ
-        ext_self[k] = v
-
-    def _ext_getattr(self, ext_self, k):
-        return ext_self.get(k)
-
-    def _ext_accept_update_key(self, k, unused_ext_self, unused_ext_keys):
-        return not k.startswith('_')
-
-    def _ext_replacement(self):
-        return self._ext_self
+    def __init__(self, context):
+        self.context = context
 
     def toExternalObject(self, *unused_args, **unused_kwargs):  # pylint: disable: arguments-differ
         return {
-            k: self._ext_getattr(self._ext_self, k)
-            for k in self._ext_self if not k.startswith('_')
+            k: self.context[k]
+            for k in self.context if not k.startswith('_')
         }
+
+    def updateFromExternalObject(self, parsed):
+        updated = False
+        for k in parsed:
+            if not k.startswith('_'):
+                self.context[k] = parsed[k]
+                updated = True
+        return updated
 
 
 class XAPIBaseIO(InterfaceObjectIO):
@@ -60,9 +58,11 @@ class XAPIBaseIO(InterfaceObjectIO):
         ext = super(XAPIBaseIO, self).toExternalObject(*args, **kwargs)
         ext.pop(CLASS, None)
         # set object type
-        object_type = getattr(self._ext_self, 'objectType', None)
-        if object_type is not None:
-            ext['objectType'] = object_type
+        try:
+            ext['objectType'] = self._ext_getattr(self._ext_replacement(), 'objectType')
+        except AttributeError:
+            pass
+
         # pop empty values
         if self._ext_pop_none:
             for k in list(ext.keys()):

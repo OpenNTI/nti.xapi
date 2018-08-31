@@ -16,6 +16,8 @@ from nti.xapi.datastructures import MappingIO
 
 from nti.xapi.interfaces import ILanguageMap
 
+from nti.xapi.mapping import ValidatingMutableMapping
+
 logger = __import__('logging').getLogger(__name__)
 
 
@@ -25,24 +27,12 @@ def _check_lang_value(value):
 
 
 @interface.implementer(ILanguageMap)
-class LanguageMap(dict):
+class LanguageMap(ValidatingMutableMapping):
 
-    def __init__(self, *args, **kwargs):
-        """
-        Initializes a LanguageMap with the given mapping
-        This constructor will first check the arguments for flatness
-        to avoid nested languagemaps (which are invalid) and then
-        call the base dict constructor
-        """
-        check_args = dict(*args, **kwargs)
-        # validate values
-        for value in check_args.values():
-            _check_lang_value(value)
-        super(LanguageMap, self).__init__(check_args)
+    __external_can_create__ = True
 
-    def __setitem__(self, key, value):
+    def _validate_key_value(self, key, value):
         _check_lang_value(value)
-        super(LanguageMap, self).__setitem__(key, value)
 
 
 class LanguageMapIO(MappingIO):

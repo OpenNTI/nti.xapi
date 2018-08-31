@@ -19,9 +19,9 @@ from zope import interface
 
 from zope.interface.common.idatetime import IDateTime
 
-from nti.externalization.externalization import to_external_object
+from nti.externalization import to_external_object
 
-from nti.externalization.internalization import update_from_external_object
+from nti.externalization import update_from_external_object
 
 from nti.xapi.about import About
 
@@ -38,7 +38,9 @@ from nti.xapi.interfaces import Version
 from nti.xapi.interfaces import IActivity
 from nti.xapi.interfaces import ILRSClient
 from nti.xapi.interfaces import IStatement
-from nti.xapi.interfaces import IStatementResult
+
+from nti.xapi.statement import Statement
+from nti.xapi.statement import StatementResult
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -234,11 +236,15 @@ class LRSClient(object):
 
     def read_statement(self, data):
         data = json.loads(data, "utf-8")
-        return IStatement(data)
+        stmt = Statement()
+        update_from_external_object(stmt, data)
+        return stmt
 
     def read_statement_result(self, data):
         data = json.loads(data, "utf-8")
-        return IStatementResult(data)
+        result = StatementResult()
+        update_from_external_object(result, data)
+        return result
 
     # states
 
@@ -447,7 +453,7 @@ class LRSClient(object):
 
             return result
     get_activity_profile = retrieve_activity_profile
-    
+
     def save_activity_profile(self, profile):
         profile = IActivityProfileDocument(profile, profile)
 
@@ -501,10 +507,10 @@ class LRSClient(object):
         return result
 
     # agent profiles
-    
+
     def retrieve_agent_profile_ids(self, agent, since=None):
         agent = IAgent(agent, agent)
-        
+
         # set params
         params = {
             "agent": json.dumps(to_external_object(agent))
@@ -526,7 +532,7 @@ class LRSClient(object):
                              response.status_code)
             return result
     get_agent_profile_ids = retrieve_agent_profile_ids
-    
+
     def retrieve_agent_profile(self, agent, profile_id):
         agent = IAgent(agent, agent)
 
@@ -555,7 +561,7 @@ class LRSClient(object):
 
             return result
     get_agent_profile = retrieve_agent_profile
-    
+
     def save_agent_profile(self, profile):
         profile = IAgentProfileDocument(profile, profile)
 

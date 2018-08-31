@@ -9,8 +9,6 @@ from __future__ import absolute_import
 
 from hamcrest import assert_that
 from hamcrest import is_
-from hamcrest import has_entries
-from hamcrest import has_entry
 from hamcrest import has_length
 from hamcrest import none
 
@@ -21,9 +19,9 @@ from zope.schema.interfaces import ValidationError
 
 from nti.testing.matchers import verifiably_provides
 
-from nti.externalization.internalization import update_from_external_object
+from nti.externalization import update_from_external_object
 
-from nti.externalization.externalization import to_external_object
+from nti.externalization import to_external_object
 
 from . import SharedConfiguringTestLayer
 
@@ -40,9 +38,9 @@ class TestContextActivities(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-
-        self.data = {
+    @property
+    def data(self):
+        return {
             "parent": [
                 {
                     "id": "http://www.example.com/meetings/series/267",
@@ -76,7 +74,9 @@ class TestContextActivities(unittest.TestCase):
             ]
         }
 
-        self.ca = IContextActivities(self.data)
+    def setUp(self):
+        self.ca = ContextActivities()
+        update_from_external_object(self.ca, self.data)
 
     def validate_context_activities(self, ca):
         assert_that(ca, verifiably_provides(IContextActivities))
@@ -88,7 +88,7 @@ class TestContextActivities(unittest.TestCase):
         for key in ('parent', 'category', 'other'):
             for activity in getattr(ca, key):
                 assert_that(activity, verifiably_provides(IActivity))
-                
+
     def test_creation(self):
         self.validate_context_activities(self.ca)
 
@@ -106,8 +106,9 @@ class TestContext(TestContextActivities):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
+    @property
+    def data(self):
+        return {
             "registration": "ec531277-b57b-4c15-8d91-d292c5b2b8f7",
             "contextActivities": {
                 "parent": [
@@ -156,12 +157,15 @@ class TestContext(TestContextActivities):
         	"name": "Team PB",
         	"mbox": "mailto:teampb@example.com",
         	"objectType": "Group"
-            }, 
+            },
             "platform" : "Example virtual meeting software",
             "language" : "tlh"
-            
+
     }
-        self.context = IContext(self.data)
+
+    def setUp(self):
+        self.context = Context()
+        update_from_external_object(self.context, self.data)
 
     def validate_context(self, context):
         assert_that(context, verifiably_provides(IContext))
@@ -170,7 +174,7 @@ class TestContext(TestContextActivities):
         assert_that(context.platform, is_('Example virtual meeting software'))
         assert_that(context.team, verifiably_provides(IGroup))
         assert_that(context.instructor, verifiably_provides(IAgent))
-        
+
     def test_creation(self):
         self.validate_context(self.context)
 

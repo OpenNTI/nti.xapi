@@ -17,9 +17,9 @@ import unittest
 
 import isodate
 
-from nti.externalization.internalization import update_from_external_object
+from nti.externalization import update_from_external_object
 
-from nti.externalization.externalization import to_external_object
+from nti.externalization import to_external_object
 
 from nti.xapi.interfaces import IScore
 from nti.xapi.interfaces import IResult
@@ -34,14 +34,18 @@ class TestScore(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
+    @property
+    def data(self):
+        return {
             "scaled": 0.95,
             "raw": 95,
             "min": 0,
             "max": 100
         }
-        self.score = IScore(self.data)
+
+    def setUp(self):
+        self.score = Score()
+        update_from_external_object(self.score, self.data)
 
     def validate_score(self, score):
         assert_that(score, verifiably_provides(IScore))
@@ -70,8 +74,9 @@ class TestResult(TestScore):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-        self.data = {
+    @property
+    def data(self):
+        return {
             "score": {
                 "scaled": 0.95,
                 "raw": 95,
@@ -82,7 +87,10 @@ class TestResult(TestScore):
             "completion": True,
             "duration": "PT1234S"
         }
-        self.result = IResult(dict(self.data))
+
+    def setUp(self):
+        self.result = Result()
+        update_from_external_object(self.result, self.data)
 
     def validate_result(self, result):
         assert_that(result, verifiably_provides(IResult))
@@ -91,7 +99,7 @@ class TestResult(TestScore):
         assert_that(result,
                     has_property('completion', is_(True)))
         assert_that(result,
-                    has_property('duration', 
+                    has_property('duration',
                                  is_(isodate.parse_duration('PT1234S'))))
         self.validate_score(result.score)
 

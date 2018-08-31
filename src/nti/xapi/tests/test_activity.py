@@ -15,16 +15,13 @@ from hamcrest import has_key
 from hamcrest import is_not
 does_not = is_not
 
-
 import unittest
-
-from zope.schema.interfaces import ValidationError
 
 from nti.testing.matchers import verifiably_provides
 
-from nti.externalization.internalization import update_from_external_object
+from nti.externalization import update_from_external_object
 
-from nti.externalization.externalization import to_external_object
+from nti.externalization import to_external_object
 
 from . import SharedConfiguringTestLayer
 
@@ -33,14 +30,14 @@ from ..interfaces import IActivityDefinition
 
 from ..activity import Activity
 from ..activity import ActivityDefinition
-       
+
 class TestActivityDefinition(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-
-        self.data = {
+    @property
+    def data(self):
+        return {
             "extensions": {
                 "http://example.com/profiles/meetings/activitydefinitionextensions/room": {"name": "Kilby", "id" : "http://example.com/rooms/342"}
             },
@@ -56,7 +53,9 @@ class TestActivityDefinition(unittest.TestCase):
             "moreInfo": "http://virtualmeeting.example.com/345256"
         }
 
-        self.ad = IActivityDefinition(self.data)
+    def setUp(self):
+        self.ad = ActivityDefinition()
+        update_from_external_object(self.ad, self.data)
 
     def validate_ad(self, ad):
         assert_that(ad, verifiably_provides(IActivityDefinition))
@@ -90,9 +89,9 @@ class TestActivity(TestActivityDefinition):
 
     layer = SharedConfiguringTestLayer
 
-    def setUp(self):
-
-        self.data = {
+    @property
+    def data(self):
+        return {
             "id": "http://www.example.com/meetings/occurances/34534",
             "definition": {
                 "extensions": {
@@ -112,7 +111,9 @@ class TestActivity(TestActivityDefinition):
             "objectType": "Activity"
         }
 
-        self.activity = IActivity(self.data)
+    def setUp(self):
+        self.activity = Activity()
+        update_from_external_object(self.activity, self.data)
 
     def validate_activity(self, activity):
         assert_that(activity, verifiably_provides(IActivity))

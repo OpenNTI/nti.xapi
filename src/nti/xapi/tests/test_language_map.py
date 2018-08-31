@@ -16,9 +16,9 @@ import unittest
 
 from nti.testing.matchers import verifiably_provides
 
-from nti.externalization.internalization import update_from_external_object
+from nti.externalization import update_from_external_object
 
-from nti.externalization.externalization import to_external_object
+from nti.externalization import to_external_object
 
 from nti.xapi.interfaces import ILanguageMap
 

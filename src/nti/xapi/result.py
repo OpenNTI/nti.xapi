@@ -10,10 +10,7 @@ from __future__ import absolute_import
 
 import isodate
 
-from zope import component
 from zope import interface
-
-from nti.externalization.internalization import update_from_external_object
 
 from nti.schema.fieldproperty import createDirectFieldProperties
 
@@ -27,29 +24,19 @@ from nti.xapi.interfaces import IResult
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(dict)
-@interface.implementer(IScore)
-def _score_factory(ext):
-    score = Score()
-    update_from_external_object(score, ext)
-    return score
-
-
 @interface.implementer(IScore)
 class Score(SchemaConfigured):
+
+    __external_can_create__ = True
+
     createDirectFieldProperties(IScore)
-
-
-@component.adapter(dict)
-@interface.implementer(IResult)
-def _result_factory(ext):
-    result = Result()
-    update_from_external_object(result, ext)
-    return result
 
 
 @interface.implementer(IResult)
 class Result(SchemaConfigured):
+
+    __external_can_create__ = True
+
     createDirectFieldProperties(IResult)
 
 
