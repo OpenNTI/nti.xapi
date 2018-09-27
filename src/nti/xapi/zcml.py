@@ -16,9 +16,8 @@ from zope import interface
 
 from zope.component.zcml import utility
 
-from zope.configuration import fields
-
 from zope.schema import URI
+from zope.schema import TextLine
 
 from nti.xapi.client import LRSClient
 
@@ -33,15 +32,15 @@ class IRegisterLRSClient(interface.Interface):
     endpoint = URI(title=u'The xAPI LRS endpoint',
                    required=True)
 
-    username = fields.TextLine(title=u'The xAPI LRS username.',
-                               required=False)
+    username = TextLine(title=u'The xAPI LRS username.',
+                        required=False)
 
-    password = fields.TextLine(title=u'client identifier',
-                               required=False)
+    password = TextLine(title=u'client identifier',
+                        required=False)
 
-    version = fields.TextLine(title=u'The SCORM Cloud service URL.',
-                              required=False,
-                              default=Version.latest)
+    version = TextLine(title=u'The SCORM Cloud service URL.',
+                       required=False,
+                       default=Version.latest)
 
 
 def registerLRSClient(_context, endpoint=None, username=None, password=None,
