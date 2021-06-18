@@ -57,16 +57,11 @@ class TestClient(unittest.TestCase):
 
         client = LRSClient(None)
         assert_that(client.endpoint, is_(None))
-        assert_that(client.username, is_(None))
-        assert_that(client.password, is_(None))
+        assert_that(client.auth, is_(None))
 
-        client = LRSClient('a', username='test', password='pwd')
+        client = LRSClient('a', auth=('test', 'pwd',))
         assert_that(client.endpoint, is_('a/'))
-        assert_that(client.username, is_('test'))
-        assert_that(client.password, is_('pwd'))
-
-        assert_that(calling(LRSClient).with_args(None, 'test', None), raises(AssertionError))
-        assert_that(calling(LRSClient).with_args(None, None, 'pwd'), raises(AssertionError))
+        assert_that(client.auth, is_(('test', 'pwd')))
 
     @fudge.patch('requests.Session.get',
                  'nti.xapi.client.update_from_external_object')
