@@ -22,6 +22,8 @@ from datetime import datetime
 
 import fudge
 
+from requests.structures import CaseInsensitiveDict
+
 from nti.xapi.client import LRSClient
 
 from nti.xapi.activity import Activity
@@ -256,11 +258,11 @@ class TestClient(unittest.TestCase):
     def test_retrieve_state(self, mock_ss, mock_ex):
         mock_ex.is_callable().returns('ext')
 
-        headers = {
+        headers = CaseInsensitiveDict({
             'etag': 'xyz',
-            'contentType': 'msword',
-            'lastModified': datetime.now()
-        }
+            'content-type': 'msword',
+            'last-modified': 'Fri, 18 Jun 2021 22:21:11 GMT'
+        })
         agent = Agent()
         activity = Activity(id="myact")
 
@@ -271,6 +273,8 @@ class TestClient(unittest.TestCase):
         client = self.get_client()
         result = client.get_state(activity, agent, 'uuid', 'reg')
         assert_that(result, is_not(none()))
+        assert_that(result.content_type, is_('msword'))
+        assert_that(result.timestamp.isoformat(), is_('2021-06-18T22:21:11+00:00'))
 
         # failed
         response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
@@ -362,11 +366,11 @@ class TestClient(unittest.TestCase):
 
     @fudge.patch('requests.Session.get')
     def test_retrieve_activity_profile(self, mock_ss):
-        headers = {
+        headers = CaseInsensitiveDict({
             'etag': 'xyz',
-            'contentType': 'msword',
-            'lastModified': datetime.now()
-        }
+            'content-type': 'msword',
+            'last-modified': 'Fri, 18 Jun 2021 22:21:11 GMT'
+        })
         activity = Activity(id="myact")
 
         # success
@@ -376,6 +380,8 @@ class TestClient(unittest.TestCase):
         client = self.get_client()
         result = client.retrieve_activity_profile(activity, 'uuid')
         assert_that(result, is_not(none()))
+        assert_that(result.content_type, is_('msword'))
+        assert_that(result.timestamp.isoformat(), is_('2021-06-18T22:21:11+00:00'))
 
         # failed
         response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
@@ -452,11 +458,11 @@ class TestClient(unittest.TestCase):
     def test_retrieve_agent_profile(self, mock_ss, mock_ex):
         mock_ex.is_callable().returns('ext')
 
-        headers = {
+        headers = CaseInsensitiveDict({
             'etag': 'xyz',
-            'contentType': 'msword',
-            'lastModified': datetime.now()
-        }
+            'content-type': 'msword',
+            'last-modified': 'Fri, 18 Jun 2021 22:21:11 GMT'
+        })
         agent = Agent()
 
         # success
@@ -466,6 +472,8 @@ class TestClient(unittest.TestCase):
         client = self.get_client()
         result = client.retrieve_agent_profile(agent, 'uuid')
         assert_that(result, is_not(none()))
+        assert_that(result.content_type, is_('msword'))
+        assert_that(result.timestamp.isoformat(), is_('2021-06-18T22:21:11+00:00'))
 
         # failed
         response = fudge.Fake().has_attr(ok=False).has_attr(status_code=422)
