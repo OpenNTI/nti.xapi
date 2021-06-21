@@ -44,6 +44,45 @@ from nti.xapi.statement import StatementResult
 
 logger = __import__('logging').getLogger(__name__)
 
+# Date parsing lifted from webob.datetime_utils
+# for dealing with http header to datetime conversions
+# https://github.com/Pylons/webob/blob/master/src/webob/datetime_utils.py
+from datetime import datetime, timedelta, tzinfo
+from email.utils import mktime_tz, parsedate_tz
+
+class _UTC(tzinfo):
+    def dst(self, dt):
+        return timedelta(0)
+
+    def utcoffset(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def __repr__(self):
+        return "UTC"
+UTC = _UTC()
+
+def _parse_date(value):
+    if not value:
+        return None
+    try:
+        if not isinstance(value, str):
+            value = str(value, "latin-1")
+    except Exception:
+        return None
+    t = parsedate_tz(value)
+
+    if t is None:
+        # Could not parse
+
+        return None
+
+    t = mktime_tz(t)
+
+    return datetime.fromtimestamp(t, UTC)
+
 
 @interface.implementer(ILRSClient)
 class LRSClient(object):
@@ -617,10 +656,10 @@ class LRSClient(object):
     # misc
 
     def _set_document_headers(self, doc, headers):
-        if headers.get("lastModified", None) is not None:
-            doc.timestamp = IDateTime(headers['lastModified'])
-        if headers.get("contentType", None) is not None:
-            doc.content_type = headers["contentType"]
+        if headers.get("last-modified", None) is not None:
+            doc.timestamp = IDateTime(_parse_date(headers['last-modified']))
+        if headers.get("content-type", None) is not None:
+            doc.content_type = headers["content-type"]
         if headers.get("etag", None) is not None:
             doc.etag = headers["etag"]
         return doc
