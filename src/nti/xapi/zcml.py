@@ -45,6 +45,8 @@ class IRegisterLRSClient(interface.Interface):
 
 def registerLRSClient(_context, endpoint=None, username=None, password=None,
                       version=Version.latest):
-    factory = partial(LRSClient, endpoint, username=username,
-                      password=password, version=version)
+    factory = partial(LRSClient,
+                      endpoint,
+                      auth=(username, password),
+                      version=version)
     utility(_context, provides=ILRSClient, factory=factory)

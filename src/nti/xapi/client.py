@@ -87,7 +87,7 @@ def _parse_date(value):
 @interface.implementer(ILRSClient)
 class LRSClient(object):
 
-    def __init__(self, endpoint, username=None, password=None,
+    def __init__(self, endpoint, auth=None,
                  version=Version.latest):
         """
         LRSClient Constructor
@@ -96,23 +96,15 @@ class LRSClient(object):
         :type endpoint: str | unicode
         :param version: Version used for lrs communication
         :type version: str
-        :param username: Username for lrs. Used to build the authentication string.
-        :type username: str
-        :param password: Password for lrs. Used to build the authentication string.
-        :type password: str
+        :param auth: Authentication for interacting with the lrs
+        :type auth: see requests.auth
         """
         if endpoint and not endpoint.endswith('/'):
             endpoint = endpoint + '/'
 
         self.version = version
         self.endpoint = endpoint
-        self.username = username
-        self.password = password
-        assert (username and password) or (not username and not password)
-
-    @property
-    def auth(self):
-        return (self.username, self.password) if self.username else None
+        self.auth = auth
 
     def session(self):
         s = Session()
