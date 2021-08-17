@@ -27,7 +27,7 @@ class ValidatingMutableMapping(MutableMapping):
         pass
 
     def __setitem__(self, key, value):
-        self._validate_key_value(key, value)
+        key = self._validate_key_value(key, value)
         self.__dict__[key] = value
 
     def __getitem__(self, key):

@@ -24,6 +24,7 @@ logger = __import__('logging').getLogger(__name__)
 def _check_lang_value(value):
     if not isinstance(value, six.string_types):
         raise TypeError("Value must be of type basestring")
+    return value
 
 
 @interface.implementer(ILanguageMap)
@@ -33,6 +34,7 @@ class LanguageMap(ValidatingMutableMapping):
 
     def _validate_key_value(self, key, value):
         _check_lang_value(value)
+        return key
 
 
 class LanguageMapIO(MappingIO):

@@ -60,7 +60,7 @@ class TestExtensionsIO(TestExtensions):
     def setUp(self):
         self.data = {
             'https://foo.com/string': 'bar',
-            'https://foo.com/int': 10
+            u'https://foo.com/int': 10
         }
 
     def test_from_external_object(self):

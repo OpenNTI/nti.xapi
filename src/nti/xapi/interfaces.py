@@ -537,6 +537,7 @@ class IStatement(IStatementBase):
     stored = ValidDatetime(title=u'Timestamp of when this Statement was recorded. Set by LRS.',
                            required=False,
                            readonly=True)
+    stored.setTaggedValue('_ext_allow_initial_set', True)
 
     authority = Object(INamedEntity,
                        title=u'Agent or Group who is asserting this Statement is true.',

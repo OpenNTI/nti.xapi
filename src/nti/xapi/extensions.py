@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from six import text_type
+
 from zope import interface
 
 from nti.schema.field import ValidURI
@@ -22,10 +24,25 @@ KEY_VALIDATOR = ValidURI(required=True)
 
 logger = __import__('logging').getLogger(__name__)
 
+_CONVERTERS = (
+    ('fromUnicode', text_type),
+    ('fromBytes', bytes),
+    ('fromObject', object)
+)
 
 def _check_key(ext, key):
     bound_field = KEY_VALIDATOR.bind(ext)
-    bound_field.validate(key)
+    for meth_name_kind in _CONVERTERS:
+        if isinstance(key, meth_name_kind[1]):
+            meth = getattr(KEY_VALIDATOR, meth_name_kind[0], None)
+            if meth is not None:
+                key = meth(key)
+                break
+    else:
+        # Here if we do not break out of the loop.
+        field.validate(key)
+    
+    return key
 
 
 @interface.implementer(IExtensions)
@@ -37,7 +54,7 @@ class Extensions(ValidatingMutableMapping):
         self.update(*args, **kwargs)
 
     def _validate_key_value(self, key, value):
-        _check_key(self, key)
+        return _check_key(self, key)
 
 
 class ExtensionsIO(MappingIO):
