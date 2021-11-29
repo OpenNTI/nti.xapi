@@ -18,13 +18,15 @@ from hamcrest import raises
 
 import codecs
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import fudge
 
 from requests.structures import CaseInsensitiveDict
 
 from nti.xapi.client import LRSClient
+from nti.xapi.client import _parse_date as parse_date
+from nti.xapi.client import UTC
 
 from nti.xapi.activity import Activity
 
@@ -276,6 +278,25 @@ class TestClient(unittest.TestCase):
         mock_ss.is_callable().returns(response)
         result = client.get_state(activity, agent, 'uuid')
         assert_that(result, is_(none()))
+
+    # Date parsing lifted from webob.datetime_utils for dealing with http header to datetime conversions
+    # https://github.com/Pylons/webob/blob/master/src/webob/datetime_utils.py
+    # https://github.com/Pylons/webob/blob/master/tests/test_datetime_utils.py
+
+    def test_UTC(self):
+        """Test missing function in _UTC"""
+        assert_that(UTC.tzname(datetime.now()), is_("UTC"))
+        assert_that(UTC.dst(datetime.now()), is_(timedelta(0)))
+        assert_that(UTC.utcoffset(datetime.now()), is_(timedelta(0)))
+        assert_that(repr(UTC),is_("UTC"))
+
+    def test_parse_date_invalid(self):
+        class Uncooperative:
+            def __str__(self):
+                raise NotImplementedError
+
+        for date in ["invalid_date", None, 1, "\xc3", Uncooperative()]:
+            assert_that(not parse_date(date))
 
     @fudge.patch('requests.Session.put',
                  'nti.xapi.client.to_external_object')
