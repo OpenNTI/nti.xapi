@@ -7,9 +7,12 @@ from __future__ import absolute_import
 
 # pylint: disable=protected-access,too-many-public-methods
 
+from datetime import timedelta
+
 from hamcrest import is_
 from hamcrest import assert_that
 from hamcrest import has_property
+from hamcrest import none
 
 from nti.testing.matchers import verifiably_provides
 
@@ -88,6 +91,21 @@ class TestResult(TestScore):
             "duration": "PT1234S"
         }
 
+    @property
+    def data_real_duration(self):
+        return {
+            "score": {
+                "scaled": 0.95,
+                "raw": 95,
+                "min": 0,
+                "max": 100
+            },
+            "success": True,
+            "completion": True,
+            "duration": timedelta(days=1)
+        }
+
+
     def setUp(self):
         self.result = Result()
         update_from_external_object(self.result, self.data)
@@ -117,6 +135,15 @@ class TestResult(TestScore):
                     is_(isodate.parse_duration(expected_duration)))
 
         assert_that(external, is_(expected))
+
+    def test_externalization_existing_duration(self):
+        self.result = Result()
+        update_from_external_object(self.result, self.data_real_duration)
+
+        external = to_external_object(self.result)
+        external_duration = external.pop('duration', None)
+
+        assert_that(external_duration, none())
 
     def test_internalization(self):
         result = Result()
