@@ -40,7 +40,7 @@ def _check_key(ext, key):
                 break
     else:
         # Here if we do not break out of the loop.
-        field.validate(key)
+        field.validate(key) # pragma: no cover
     
     return key
 

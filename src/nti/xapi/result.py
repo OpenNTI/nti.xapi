@@ -58,7 +58,7 @@ class ResultIO(XAPIBaseIO):
         if duration:
             try:
                 result['duration'] = isodate.duration_isoformat(duration)
-            except TypeError:
+            except TypeError:  # pragma: no cover
                 # not a duration
                 result['duration'] = duration
         return result

@@ -24,7 +24,7 @@ class ValidatingMutableMapping(MutableMapping):
         self.update(*args, **kwargs)
 
     def _validate_key_value(self, key, value):
-        pass
+        pass  # pragma: no coverage
 
     def __setitem__(self, key, value):
         key = self._validate_key_value(key, value)
