@@ -8,7 +8,7 @@ from __future__ import absolute_import
 # pylint: disable=protected-access,too-many-public-methods
 
 from hamcrest import is_
-from hamcrest import contains
+from hamcrest import contains_exactly
 from hamcrest import assert_that
 from hamcrest import has_entries
 from hamcrest import has_property
@@ -35,16 +35,16 @@ class TestAbout(unittest.TestCase):
 
     def test_defaults(self):
         a = About()
-        assert_that(a, has_property('version', contains(Version.latest)))
+        assert_that(a, has_property('version', contains_exactly(Version.latest)))
 
     def test_version_init(self):
         about = About(version=['1.0.1', '1.0.0'])
-        assert_that(about, has_property('version', contains('1.0.1', '1.0.0')))
+        assert_that(about, has_property('version', contains_exactly('1.0.1', '1.0.0')))
 
     def test_takes_exts(self):
         about = About(version=['1.0.1', '1.0.0'])
         about.extensions = Extensions({'https://foo.com/a': 1})
-        assert_that(about.extensions, contains('https://foo.com/a'))
+        assert_that(about.extensions, contains_exactly('https://foo.com/a'))
 
 
 class TestAboutIO(TestAbout):
@@ -64,7 +64,7 @@ class TestAboutIO(TestAbout):
         about = About()
         update_from_external_object(about, self.data)
 
-        assert_that(about, has_property('version', contains('1.0.0')))
+        assert_that(about, has_property('version', contains_exactly('1.0.0')))
         assert_that(about.extensions, has_entries('http://www.example.com/ext/a', 'a',
                                                   'http://www.example.com/ext/b', 'b'))
 
