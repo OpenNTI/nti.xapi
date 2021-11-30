@@ -97,7 +97,7 @@ class TestLanguageMap(unittest.TestCase):
         lmap['fr-CA'] = 'CA-test'
         assert_that(lmap, has_entries('en-US', 'US-test',
                                       'fr-CA', 'CA-test'))
-        lmap.__delitem__('fr-CA')
+        del lmap['fr-CA']
         assert_that(lmap, not_(has_entries('fr-CA', 'CA-test')))
 
     def test_setItemException(self):
