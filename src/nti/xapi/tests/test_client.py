@@ -296,7 +296,7 @@ class TestClient(unittest.TestCase):
                 raise NotImplementedError
 
         for date in ["invalid_date", None, 1, "\xc3", Uncooperative()]:
-            assert_that(not parse_date(date))
+            assert_that(parse_date(date), is_(none()))
 
     @fudge.patch('requests.Session.put',
                  'nti.xapi.client.to_external_object')

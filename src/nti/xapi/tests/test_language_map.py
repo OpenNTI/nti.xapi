@@ -108,7 +108,7 @@ class TestLanguageMap(unittest.TestCase):
     def mapVerificationHelper(self, lmap):
         assert_that(lmap, instance_of(LanguageMap))
         assert_that(lmap, verifiably_provides(ILanguageMap))
-        assert_that(len(lmap), is_(3))
+        assert_that(lmap, has_length(3))
         assert_that(lmap, has_entries('en-US', 'US-test',
                                       'fr-CA', 'CA-test',
                                       'fr-FR', 'FR-test'))
