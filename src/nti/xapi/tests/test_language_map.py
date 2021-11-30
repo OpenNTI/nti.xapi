@@ -12,6 +12,7 @@ from hamcrest import assert_that
 from hamcrest import instance_of
 from hamcrest import has_entries
 from hamcrest import not_
+from hamcrest import has_length
 
 import unittest
 
@@ -92,8 +93,8 @@ class TestLanguageMap(unittest.TestCase):
 
     def test_delItem(self):
         lmap = LanguageMap()
-        lmap.__setitem__('en-US', 'US-test')
-        lmap.__setitem__('fr-CA', 'CA-test')
+        lmap['en-US'] = 'US-test'
+        lmap['fr-CA'] = 'CA-test'
         assert_that(lmap, has_entries('en-US', 'US-test',
                                       'fr-CA', 'CA-test'))
         lmap.__delitem__('fr-CA')
