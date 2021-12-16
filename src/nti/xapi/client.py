@@ -148,7 +148,7 @@ class LRSClient(object):
 
     # statements
 
-    def save_statement(self, statement, **kwargs):
+    def save_statement(self, statement, attachments=None):
         statement = IStatement(statement, statement)
         with self.session() as session:
             # prepare request
@@ -159,7 +159,6 @@ class LRSClient(object):
             method = 'PUT' if sid else 'POST'
 
             # handle statement attachment
-            attachments = kwargs.get('attachments', None)
             if not attachments:
                 r = Request(method, url, params=params, json=payload, auth=self.auth)
                 prepped = session.prepare_request(r)
@@ -187,11 +186,10 @@ class LRSClient(object):
                 logger.error("Invalid server response [%s] while saving statement.", response.status_code)
             return statement
 
-    def save_statements(self, statements, **kwargs):
+    def save_statements(self, statements, attachments=None):
         with self.session() as session:
             url = urllib_parse.urljoin(self.endpoint, "statements")
             payload = to_external_object(statements)
-            attachments = kwargs.get('attachments', None)
             method = 'POST'
             if not attachments:
                 r = Request(method, url, json=payload, auth=self.auth)
