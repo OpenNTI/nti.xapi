@@ -9,11 +9,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from requests import Session
+from requests import Request
 
 import simplejson as json
 
 import six
 from six.moves import urllib_parse
+
+from mimetypes import guess_type
 
 from zope import interface
 
@@ -50,6 +53,7 @@ logger = __import__('logging').getLogger(__name__)
 from datetime import datetime, timedelta, tzinfo
 from email.utils import mktime_tz, parsedate_tz
 
+
 class _UTC(tzinfo):
     def dst(self, dt):
         return timedelta(0)
@@ -62,7 +66,10 @@ class _UTC(tzinfo):
 
     def __repr__(self):
         return "UTC"
+
+
 UTC = _UTC()
+
 
 def _parse_date(value):
     if not value:
@@ -701,4 +708,6 @@ class LRSClient(object):
         parsed = urllib_parse.urlparse(self.endpoint)
         root = parsed.scheme + "://" + parsed.netloc
         return root
+
+
 Client = LRSClient
