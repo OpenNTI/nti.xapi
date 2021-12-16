@@ -148,7 +148,7 @@ class LRSClient(object):
 
     # statements
 
-    def save_statement(self, statement, *args, **kwargs):
+    def save_statement(self, statement, **kwargs):
         statement = IStatement(statement, statement)
         with self.session() as session:
             # prepare request
