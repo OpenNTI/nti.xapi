@@ -163,7 +163,7 @@ class TestClient(unittest.TestCase):
 
         # success with attachment
         sha2 = "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
-        file_location = 'test_client.py'
+        file_location = 'src/nti/xapi/tests/test_client.py'
         stmt = Statement()
         stmt.id = "7ccd3322-e1a5-411a-a67d-6a735c76f119"
         result = client.save_statement(stmt, attachments={sha2: file_location})
@@ -180,11 +180,10 @@ class TestClient(unittest.TestCase):
     def test_save_statements(self, mock_ss):
 
         # success
-        data = fudge.Fake().has_attr(text=b'["xxx"]').has_attr(status_code=204)
+        data = fudge.Fake().has_attr(text=b'["7ccd3322-e1a5-411a-a67d-6a735c76f119"]').has_attr(status_code=204)
         mock_ss.is_callable().returns(data)
 
         statement = Statement()
-        statement.id = "7ccd3322-e1a5-411a-a67d-6a735c76f119"
         client = self.get_client()
         result = client.save_statements([statement])
         assert_that(result, is_not(none()))
@@ -197,10 +196,10 @@ class TestClient(unittest.TestCase):
 
         # failed with attachment
         sha2 = "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
-        file_location = 'test_client.py'
+        file_location = 'src/nti/xapi/tests/test_client.py'
         stmt = Statement()
         stmt.id = "7ccd3322-e1a5-411a-a67d-6a735c76f119"
-        result = client.save_statements(stmt, attachments={sha2: file_location})
+        result = client.save_statements(statements=stmt, attachments={sha2: file_location})
         assert_that(result, is_(none()))
 
     @fudge.patch('requests.Session.get',
