@@ -369,6 +369,13 @@ class IContext(IXAPIBase):
                         required=False)
 
 
+class MissingAttachmentDataException(Exception):
+    """
+    An exception raised when attempting to send a request with a file hash that is not referenced in the Statement's
+     list of IAttachment objects.
+    """
+
+
 class IAttachment(IXAPIBase):
     """
     In some cases an Attachment is logically an important part of a Learning Record.
