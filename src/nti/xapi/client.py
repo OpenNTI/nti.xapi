@@ -188,7 +188,7 @@ class LRSClient(object):
             files = {'json': ('json', json.dumps(payload), 'application/json')}
             for statement in statements:
                 for attachment in statement.attachments or ():
-                    if not hasattr(attachment, 'fileURL'):  # This is not a url based attachment.
+                    if not attachment.fileUrl:  # This is not a url based attachment.
                         file_hash = attachment.sha2
                         attachment_file = attachments.get(file_hash, None)
                         if not attachment_file:
