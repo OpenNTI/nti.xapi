@@ -184,7 +184,11 @@ class LRSClient(object):
                 for attachment in statement.attachments or ():
                     if not hasattr(attachment, 'fileURL'):  # This is not a url based attachment.
                         file_hash = attachment.sha2
-                        files[file_hash] = (file_hash, attachments[file_hash], attachment.contentType,
+                        attachment_file = attachments.get(file_hash, None)
+                        if not attachment_file:
+                            err_msg = 'Provided attachment hash is not a reference to an Attachment in this Statement'
+                            raise ValueError(err_msg, file_hash)
+                        files[file_hash] = (file_hash, attachment_file, attachment.contentType,
                                             {'X-Experience-API-Hash': file_hash,
                                              'Content-Transfer-Encoding': 'binary'})
 
