@@ -151,73 +151,50 @@ class LRSClient(object):
     def save_statement(self, statement, attachments=None):
         statement = IStatement(statement, statement)
         with self.session() as session:
-            # prepare request
             sid = statement.id
             params = {"statementId": sid} if sid else None
-            url = urllib_parse.urljoin(self.endpoint, "statements")
-            payload = to_external_object(statement)
             method = 'PUT' if sid else 'POST'
-
-            # handle statement attachment
-            if not attachments:
-                r = Request(method, url, params=params, json=payload, auth=self.auth)
-                prepped = session.prepare_request(r)
-            else:
-                files = {'json': ('json', json.dumps(payload), 'application/json')}
-                for readable_hash in attachments:
-                    attachment_file = attachments[readable_hash]
-                    files[readable_hash] = (readable_hash, open(attachment_file), guess_type(attachment_file),
-                                            {'X-Experience-API-Hash': readable_hash,
-                                             'Content-Transfer-Encoding': 'binary'})
-
-                # send request, if request has an attachment, we must manually update the content header
-                prepped = session.prepare_request(
-                    Request(method, url, files=files, params=params, json=payload, auth=self.auth))
-                prepped.headers['Content-type'] = prepped.headers['Content-type'].replace('multipart/form-data',
-                                                                                          'multipart/mixed')
-            # pylint: disable=too-many-function-args
-            response = session.send(prepped)
-            if 200 <= response.status_code < 300:
-                data = self.prepare_json_text(response.text)
-                data = (sid,) if sid else json.loads(data, "utf-8")
-                statement.id = data[0]
-            else:
-                statement = None
-                logger.error("Invalid server response [%s] while saving statement.", response.status_code)
+            response = self.prepare_statement_request_helper(method, session, [statement], attachments, params)
+            response.raise_for_status()
+            data = self.prepare_json_text(response.text)
+            data = (sid,) if sid else json.loads(data, "utf-8")
+            statement.id = data[0]
             return statement
 
     def save_statements(self, statements, attachments=None):
         with self.session() as session:
-            url = urllib_parse.urljoin(self.endpoint, "statements")
-            payload = to_external_object(statements)
             method = 'POST'
-            if not attachments:
-                r = Request(method, url, json=payload, auth=self.auth)
-                prepped = session.prepare_request(r)
-            else:
-                files = {'json': ('json', json.dumps(payload), 'application/json')}
-                for readable_hash in attachments:
-                    attachment_file = attachments[readable_hash]
-                    files[readable_hash] = (readable_hash, open(attachment_file), guess_type(attachment_file),
-                                            {'X-Experience-API-Hash': readable_hash,
+            response = self.prepare_statement_request_helper(method, session, statements, attachments)
+            response.raise_for_status()
+            data = self.prepare_json_text(response.text)
+            data = json.loads(data, "utf-8")
+            for s, statement_id in zip(statements, data):
+                s.id = statement_id
+            return statements
+
+    def send_statement_request_helper(self, method, session, statements, attachments, params=None):
+        url = urllib_parse.urljoin(self.endpoint, "statements")
+        payload = to_external_object(statements)
+        if not attachments:
+            r = Request(method, url, params=params, json=payload, auth=self.auth)
+            prepped = session.prepare_request(r)
+        else:
+            files = {'json': ('json', json.dumps(payload), 'application/json')}
+            for statement in statements:
+                for attachment in statement.attachments or ():
+                    if not hasattr(attachment, 'fileURL'):  # This is not a url based attachment.
+                        file_hash = attachment.sha2
+                        files[file_hash] = (file_hash, attachments[file_hash], attachment.contentType,
+                                            {'X-Experience-API-Hash': file_hash,
                                              'Content-Transfer-Encoding': 'binary'})
 
-                # send request, if request has an attachment, we must manually update the content header
-                prepped = session.prepare_request(
-                    Request(method, url, files=files, json=payload, auth=self.auth))
-                prepped.headers['Content-type'] = prepped.headers['Content-type'].replace('multipart/form-data',
-                                                                                          'multipart/mixed')
-            response = session.send(prepped)
-            if 200 <= response.status_code < 300:
-                data = self.prepare_json_text(response.text)
-                data = json.loads(data, "utf-8")
-                for s, statement_id in zip(statements, data):
-                    s.id = statement_id
-            else:
-                statements = None
-                logger.error("Invalid server response [%s] while saving statements.",
-                             response.status_code)
-            return statements
+            # send request, if request has an attachment, we must manually update the content header
+            prepped = session.prepare_request(
+                Request(method, url, files=files, params=params, json=payload, auth=self.auth))
+            # xapi requires the content-type of requests with attachments to be 'mutlipart/mixed'
+            prepped.headers['Content-type'] = prepped.headers['Content-type']\
+                .replace('multipart/form-data', 'multipart/mixed')
+        return session.send(prepped)
 
     def retrieve_statement(self, statement_id):
         result = None
