@@ -154,7 +154,7 @@ class LRSClient(object):
             sid = statement.id
             params = {"statementId": sid} if sid else None
             method = 'PUT' if sid else 'POST'
-            response = self.prepare_statement_request_helper(method, session, [statement], attachments, params)
+            response = self.send_statement_request_helper(method, session, [statement], attachments, params)
             response.raise_for_status()
             data = self.prepare_json_text(response.text)
             data = (sid,) if sid else json.loads(data, "utf-8")
@@ -164,7 +164,7 @@ class LRSClient(object):
     def save_statements(self, statements, attachments=None):
         with self.session() as session:
             method = 'POST'
-            response = self.prepare_statement_request_helper(method, session, statements, attachments)
+            response = self.send_statement_request_helper(method, session, statements, attachments)
             response.raise_for_status()
             data = self.prepare_json_text(response.text)
             data = json.loads(data, "utf-8")
