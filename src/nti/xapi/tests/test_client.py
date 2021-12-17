@@ -48,6 +48,8 @@ from io import StringIO
 
 from requests import HTTPError
 
+from nti.xapi.interfaces import MissingAttachmentDataException
+
 class TestClient(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
@@ -194,7 +196,8 @@ class TestClient(unittest.TestCase):
 
         # success with bad attachment
         file_like = StringIO()
-        assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}), raises(ValueError))
+        assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}),
+                    raises(MissingAttachmentDataException))
 
         # failed
         data = fudge.Fake().has_attr(status_code=422, text=b'Unprocessable Entity')\
@@ -229,7 +232,8 @@ class TestClient(unittest.TestCase):
         assert_that(client.save_statements([stmt], {attachment.sha2: file_like}), is_(none()))
 
         # success with bad attachment
-        assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}), raises(ValueError))
+        assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}),
+                    raises(MissingAttachmentDataException))
 
     @fudge.patch('requests.Session.get',
                  'nti.xapi.client.to_external_object')

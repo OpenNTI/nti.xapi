@@ -39,6 +39,7 @@ from nti.xapi.interfaces import Version
 from nti.xapi.interfaces import IActivity
 from nti.xapi.interfaces import ILRSClient
 from nti.xapi.interfaces import IStatement
+from nti.xapi.interfaces import MissingAttachmentDataException
 
 from nti.xapi.statement import Statement
 from nti.xapi.statement import StatementResult
@@ -193,7 +194,7 @@ class LRSClient(object):
                         attachment_file = attachments.get(file_hash, None)
                         if not attachment_file:
                             err_msg = 'Provided attachment hash is not a reference to an Attachment in this Statement'
-                            raise ValueError(err_msg, file_hash)
+                            raise MissingAttachmentDataException(err_msg, file_hash)
                         files[file_hash] = (file_hash, attachment_file, attachment.contentType,
                                             {'X-Experience-API-Hash': file_hash,
                                              'Content-Transfer-Encoding': 'binary'})
