@@ -186,14 +186,14 @@ class TestClient(unittest.TestCase):
         assert_that(result, is_not(none()))
 
         # success with attachment
-        file_like = StringIO("Content for test_save_statements file.")
+        file_like = StringIO()
         attachment = self.attachment
         stmt.attachments = [attachment]
         result = client.save_statement(stmt, {attachment.sha2: file_like})
         assert_that(result, is_not(none()))
 
         # success with bad attachment
-        file_like = StringIO("Content for test_save_statements file.")
+        file_like = StringIO()
         assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}), raises(ValueError))
 
         # failed
@@ -222,7 +222,7 @@ class TestClient(unittest.TestCase):
         assert_that(client.save_statements([statement]), is_(none()))
 
         # failed with attachment
-        file_like = StringIO("Content for test_save_statements file.")
+        file_like = StringIO()
         stmt = self.statement
         attachment = self.attachment
         stmt.attachments = [attachment]
