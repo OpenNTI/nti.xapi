@@ -9,14 +9,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from requests import Session
-from requests import Request
+from requests import Request, HTTPError
 
 import simplejson as json
 
 import six
 from six.moves import urllib_parse
-
-from mimetypes import guess_type
 
 from zope import interface
 
@@ -155,21 +153,29 @@ class LRSClient(object):
             params = {"statementId": sid} if sid else None
             method = 'PUT' if sid else 'POST'
             response = self.send_statement_request_helper(method, session, [statement], attachments, params)
-            response.raise_for_status()
-            data = self.prepare_json_text(response.text)
-            data = (sid,) if sid else json.loads(data, "utf-8")
-            statement.id = data[0]
+            try:
+                response.raise_for_status()
+                data = self.prepare_json_text(response.text)
+                data = (sid,) if sid else json.loads(data, "utf-8")
+                statement.id = data[0]
+            except HTTPError:
+                logger.error("Invalid server response [%s] while saving statement.", response.status_code)
+                statement = None
             return statement
 
     def save_statements(self, statements, attachments=None):
         with self.session() as session:
             method = 'POST'
             response = self.send_statement_request_helper(method, session, statements, attachments)
-            response.raise_for_status()
-            data = self.prepare_json_text(response.text)
-            data = json.loads(data, "utf-8")
-            for s, statement_id in zip(statements, data):
-                s.id = statement_id
+            try:
+                response.raise_for_status()
+                data = self.prepare_json_text(response.text)
+                data = json.loads(data, "utf-8")
+                for s, statement_id in zip(statements, data):
+                    s.id = statement_id
+            except HTTPError:
+                logger.error("Invalid server response [%s] while saving statement.", response.status_code)
+                statements = None
             return statements
 
     def send_statement_request_helper(self, method, session, statements, attachments, params=None):
