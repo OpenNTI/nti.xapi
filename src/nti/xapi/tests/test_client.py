@@ -201,7 +201,7 @@ class TestClient(unittest.TestCase):
             .provides('raise_for_status').raises(HTTPError('website down.'))
         mock_ss.is_callable().returns(data)
         stmt = Statement()
-        assert_that(calling(client.save_statement).with_args(stmt), raises(HTTPError))
+        assert_that(client.save_statement(stmt), is_(none()))
 
     @fudge.patch('requests.Session.send')
     def test_save_statements(self, mock_ss):
@@ -219,15 +219,14 @@ class TestClient(unittest.TestCase):
         data = fudge.Fake().has_attr(status_code=422, text=b'Unprocessable Entity')\
             .provides('raise_for_status').raises(HTTPError('website down'))
         mock_ss.is_callable().returns(data)
-        assert_that(calling(client.save_statements).with_args([statement]), raises(HTTPError))
+        assert_that(client.save_statements([statement]), is_(none()))
 
         # failed with attachment
         file_like = StringIO("Content for test_save_statements file.")
         stmt = self.statement
         attachment = self.attachment
         stmt.attachments = [attachment]
-        assert_that(calling(client.save_statements).with_args([stmt], {attachment.sha2: file_like}),
-                    raises(HTTPError))
+        assert_that(client.save_statements([stmt], {attachment.sha2: file_like}), is_(none()))
 
         # success with bad attachment
         assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}), raises(ValueError))
