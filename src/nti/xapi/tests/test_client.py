@@ -44,6 +44,10 @@ from nti.xapi.attachment import Attachment
 
 from nti.externalization import update_from_external_object
 
+from io import StringIO
+
+from requests import HTTPError
+
 class TestClient(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
@@ -148,59 +152,85 @@ class TestClient(unittest.TestCase):
         result = client.get_voided_statement("notfound")
         assert_that(result, is_(none()))
 
+
+    @property
+    def attachment(self):
+        data = {
+            "usageType": "http://adlnet.gov/expapi/attachments/signature",
+            "display": {"en-US": "Signature"},
+            "description": {"en-US": "A test signature"},
+            "contentType": "application/octet-stream",
+            "length": 4235,
+            "sha2": "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
+        }
+        attachment = Attachment()
+        update_from_external_object(attachment, data)
+        return attachment
+
+    @property
+    def statement(self):
+        stmt = Statement()
+        stmt.id = "7ccd3322-e1a5-411a-a67d-6a735c76f119"
+        return stmt
+
+
     @fudge.patch('requests.Session.send')
     def test_save_statement(self, mock_ss):
 
         # success
-        data = fudge.Fake().has_attr(text=b'').has_attr(status_code=204)
+        data = fudge.Fake().has_attr(status_code=204, text=b'').provides('raise_for_status')
         mock_ss.is_callable().returns(data)
-
         client = self.get_client()
-        stmt = Statement()
-        stmt.id = "7ccd3322-e1a5-411a-a67d-6a735c76f119"
+        stmt = self.statement
         result = client.save_statement(stmt)
         assert_that(result, is_not(none()))
 
         # success with attachment
-        sha2 = "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
-        file_location = 'src/nti/xapi/tests/test_client.py'
-        stmt = Statement()
-        stmt.id = "7ccd3322-e1a5-411a-a67d-6a735c76f119"
-        result = client.save_statement(stmt, attachments={sha2: file_location})
+        file_like = StringIO("Content for test_save_statements file.")
+        attachment = self.attachment
+        stmt.attachments = [attachment]
+        result = client.save_statement(stmt, {attachment.sha2: file_like})
         assert_that(result, is_not(none()))
 
+        # success with bad attachment
+        file_like = StringIO("Content for test_save_statements file.")
+        assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}), raises(ValueError))
+
         # failed
-        data = fudge.Fake().has_attr(status_code=422)
+        data = fudge.Fake().has_attr(status_code=422, text=b'Unprocessable Entity')\
+            .provides('raise_for_status').raises(HTTPError('website down.'))
         mock_ss.is_callable().returns(data)
         stmt = Statement()
-        result = client.save_statement(stmt)
-        assert_that(result, is_(none()))
+        assert_that(calling(client.save_statement).with_args(stmt), raises(HTTPError))
 
     @fudge.patch('requests.Session.send')
     def test_save_statements(self, mock_ss):
 
         # success
-        data = fudge.Fake().has_attr(text=b'["7ccd3322-e1a5-411a-a67d-6a735c76f119"]').has_attr(status_code=204)
+        data = fudge.Fake().has_attr(text=b'["7ccd3322-e1a5-411a-a67d-6a735c76f119"]')\
+            .has_attr(status_code=204).provides('raise_for_status')
         mock_ss.is_callable().returns(data)
-
         statement = Statement()
         client = self.get_client()
         result = client.save_statements([statement])
         assert_that(result, is_not(none()))
 
         # failed
-        data = fudge.Fake().has_attr(status_code=422)
+        data = fudge.Fake().has_attr(status_code=422, text=b'Unprocessable Entity')\
+            .provides('raise_for_status').raises(HTTPError('website down'))
         mock_ss.is_callable().returns(data)
-        result = client.save_statements([statement])
-        assert_that(result, is_(none()))
+        assert_that(calling(client.save_statements).with_args([statement]), raises(HTTPError))
 
         # failed with attachment
-        sha2 = "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
-        file_location = 'src/nti/xapi/tests/test_client.py'
-        stmt = Statement()
-        stmt.id = "7ccd3322-e1a5-411a-a67d-6a735c76f119"
-        result = client.save_statements(statements=stmt, attachments={sha2: file_location})
-        assert_that(result, is_(none()))
+        file_like = StringIO("Content for test_save_statements file.")
+        stmt = self.statement
+        attachment = self.attachment
+        stmt.attachments = [attachment]
+        assert_that(calling(client.save_statements).with_args([stmt], {attachment.sha2: file_like}),
+                    raises(HTTPError))
+
+        # success with bad attachment
+        assert_that(calling(client.save_statement).with_args(stmt, {'xxx': file_like}), raises(ValueError))
 
     @fudge.patch('requests.Session.get',
                  'nti.xapi.client.to_external_object')
